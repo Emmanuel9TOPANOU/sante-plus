@@ -33,5 +33,5 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-pl
 # Permissions pour Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Commande de lancement
-CMD php artisan serve --host=0.0.0.0 --port=$PORT
+# On remplace l'ancienne ligne CMD par celle-ci :
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
