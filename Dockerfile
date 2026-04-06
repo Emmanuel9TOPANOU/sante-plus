@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Installation des dépendances système nécessaires
+# Installation des dépendances système indispensables
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -12,20 +12,26 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev
 
-# Installation des extensions PHP pour Laravel et PostgreSQL
-RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip
+# Nettoyage du cache apt pour éviter les erreurs d'espace
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Installation de Composer
+# Installation des extensions PHP (Ajout de zip et pdo_mysql pour la compatibilité)
+RUN docker-php-ext-install pdo_pgsql pdo_mysql mbstring exif pcntl bcmath gd zip
+
+# Installation de la dernière version de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 COPY . .
 
-# Installation des dépendances PHP uniquement (On saute la compilation JS pour l'instant)
-RUN composer install --no-dev --optimize-autoloader
+# Suppression du dossier vendor et du lock s'ils existent pour forcer une installation propre
+RUN rm -rf vendor composer.lock
 
-# On donne les permissions aux dossiers de stockage (Très important pour Laravel)
+# Installation des dépendances avec ignorance des plateformes (évite l'erreur 2)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+
+# Permissions pour Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Commande de lancement officielle pour Render
+# Commande de lancement
 CMD php artisan serve --host=0.0.0.0 --port=$PORT
