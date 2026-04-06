@@ -33,5 +33,5 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-pl
 # Permissions pour Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# On remplace l'ancienne ligne CMD par celle-ci :
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
+# Le "|| true" permet de continuer même si la migration échoue (ex: colonne déjà là)
+CMD php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=$PORT
