@@ -43,7 +43,7 @@
                     </span>
                 </div>
 
-                <div class="bg-white rounded-[3rem] border border-slate-100 shadow-2xl shadow-slate-200/30 overflow-hidden">
+                <div class="admin-table-wrapper">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50/40">
@@ -60,16 +60,10 @@
                                         <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 font-black text-xs">
                                             {{ strtoupper(substr($spec->nom_specialite, 0, 2)) }}
                                         </div>
-                                        <span class="font-black text-slate-800 text-sm uppercase tracking-tight group-hover:translate-x-1 transition-transform inline-block">
-                                            {{ $spec->nom_specialite }}
-                                        </span>
+                                        <span class="font-bold text-slate-800">{{ $spec->nom_specialite }}</span>
                                     </div>
                                 </td>
-                                <td class="px-10 py-6">
-                                    <p class="text-[11px] font-bold text-slate-400 leading-relaxed max-w-[250px] line-clamp-2 italic">
-                                        {{ $spec->description ?? 'Aucun descriptif rédigé pour cette spécialité.' }}
-                                    </p>
-                                </td>
+                                <td class="px-10 py-6 text-slate-500">{{ $spec->description }}</td>
                                 <td class="px-10 py-6 text-right">
                                     <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <form action="{{ route('admin.specialites.destroy', $spec) }}" method="POST" onsubmit="return confirm('Supprimer définitivement cette discipline ?')">
@@ -82,7 +76,9 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="3" class="px-10 py-20 text-center text-[10px] font-black uppercase text-slate-300 tracking-widest">Aucune donnée</td></tr>
+                            <tr>
+                                <td colspan="3" class="text-center text-slate-400 py-10">Aucune spécialité trouvée.</td>
+                            </tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -147,3 +143,9 @@
         </div>
     </div>
 </x-app-layout>
+
+<style>
+    @media (max-width: 1023px) {
+        .admin-table-wrapper { overflow-x: auto; width: 100%; }
+    }
+</style>

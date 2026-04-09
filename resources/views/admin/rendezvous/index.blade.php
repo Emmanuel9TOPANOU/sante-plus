@@ -24,7 +24,7 @@
         </form>
     </div>
 
-    <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+    <div class="admin-table-wrapper">
         <table class="w-full text-left border-collapse">
             <thead class="bg-slate-50 border-b border-slate-100">
                 <tr>
@@ -73,7 +73,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">Aucun rendez-vous trouvé.</td>
+                    <td colspan="5" class="text-center text-slate-400 py-10">Aucun rendez-vous trouvé.</td>
                 </tr>
                 @endforelse
             </tbody>

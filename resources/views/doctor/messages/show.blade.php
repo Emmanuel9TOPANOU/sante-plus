@@ -27,12 +27,7 @@
             {{-- Liste des Contacts --}}
             <div class="flex-1 overflow-y-auto px-4 py-4 space-y-2 scrollbar-hide">
                 
-                {{-- Administration --}}
-                <div x-show="search === '' || 'administration'.includes(search.toLowerCase())">
-                    <h3 class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-4 ml-2 flex items-center">
-                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>Administration
-                    </h3>
-                </div>
+
 
                 @foreach($secretaires as $secretaire)
                 <a href="{{ route('doctor.messages.show', $secretaire->id) }}" 
@@ -48,12 +43,6 @@
                 </a>
                 @endforeach
 
-                {{-- Patients --}}
-                <div class="pt-4">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-2 flex items-center">
-                        <span class="w-1.5 h-1.5 bg-gray-300 rounded-full mr-2"></span>File Patients
-                    </h3>
-                </div>
 
                 @foreach($contacts as $contact)
                     @if($contact->role !== 'secretaire')
@@ -80,33 +69,26 @@
     </aside>
 
     {{-- Main Chat Section --}}
-    <main class="flex-1 flex flex-col h-full bg-[#FBFBFF] relative overflow-hidden">
+    <main class="flex-1 flex flex-col h-full bg-[#FBFBFF] relative overflow-hidden main-chat-section">
         
         {{-- Header Chat --}}
         <header class="h-20 flex items-center justify-between px-6 bg-white/80 backdrop-blur-md border-b border-gray-100 z-30">
-            <div class="flex items-center">
-                {{-- Toggle Sidebar Mobile --}}
+            <div class="flex items-center space-x-3">
                 <button @click="sidebarOpen = true" class="lg:hidden mr-4 p-2 bg-slate-50 rounded-xl text-gray-600">
                     <i class="fas fa-bars"></i>
                 </button>
-
-                @if(isset($activeContact))
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-blue-100 mr-3">
-                            {{ strtoupper(substr($activeContact->name,0,1)) }}
-                        </div>
-                        <div>
-                            <h2 class="text-sm font-black text-gray-800 uppercase tracking-tight">{{ $activeContact->name }}</h2>
-                            <div class="flex items-center text-[10px] text-emerald-500 font-bold uppercase tracking-widest">
-                            </div>
-                        </div>
-                    </div>
-                @else
-                    <h1 class="text-xl font-black text-gray-800 italic tracking-tighter">Santé<span class="text-blue-600">+</span> <span class="text-xs uppercase not-italic text-gray-400 ml-2 tracking-widest font-black">Messagerie</span></h1>
-                @endif
+                <a href="{{ route('doctor.messages.index') }}" class="p-2.5 bg-white rounded-xl shadow-sm border border-gray-50 text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-2 text-xs md:text-sm font-bold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    Retour à la liste des conversations
+                </a>
+                <h1 class="text-base md:text-xl font-black text-gray-800 italic">
+                    Ma <span class="text-blue-600">Messagerie</span>
+                </h1>
             </div>
-
-          
+            <div class="hidden md:flex items-center space-x-2 text-[10px] font-black text-gray-400 uppercase">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span>Serveur sécurisé Santé+</span>
+            </div>
         </header>
 
         {{-- Zone des Messages --}}
@@ -117,7 +99,6 @@
                     <div class="flex flex-col {{ $isMe ? 'items-end' : 'items-start' }} animate-fade-in-up">
                         <div class="max-w-[85%] md:max-w-[70%] p-4 rounded-2xl shadow-sm {{ $isMe ? 'bg-blue-600 text-white rounded-tr-none shadow-blue-100' : 'bg-white text-gray-700 border border-gray-100 rounded-tl-none' }}">
                             <p class="text-sm font-medium leading-relaxed">{{ $message->content }}</p>
-                            
                             @if($message->file_path)
                                 <div class="mt-3 flex items-center p-3 rounded-xl {{ $isMe ? 'bg-white/10 border border-white/20' : 'bg-slate-50 border border-gray-100' }}">
                                     <i class="fas fa-file-pdf {{ $isMe ? 'text-white' : 'text-blue-600' }} text-lg"></i>
@@ -169,21 +150,17 @@
                     <span id="file-name"></span>
                     <button onclick="clearFile()" class="ml-auto text-red-500"><i class="fas fa-times"></i></button>
                 </div>
-
-                <form action="{{ route('doctor.messages.store') }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-3">
+                <form action="{{ route('doctor.messages.store') }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-3 message-input-row">
                     @csrf
                     <input type="hidden" name="receiver_id" value="{{ $activeContact->id }}">
-                    
                     <label class="group cursor-pointer flex-shrink-0">
                         <div class="w-12 h-12 bg-slate-50 group-hover:bg-blue-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-blue-600 transition-all border border-gray-100">
                             <i class="fas fa-paperclip text-lg"></i>
                         </div>
                         <input type="file" name="attachment" id="attachment" class="hidden" onchange="handleFileSelect(this)">
                     </label>
-
                     <input type="text" name="content" required placeholder="Votre message..." 
                            class="flex-1 bg-slate-50 border-none rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-700 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-300 transition">
-
                     <button type="submit" class="w-12 h-12 bg-blue-600 hover:bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-200 transition-all transform hover:-translate-y-1 active:scale-95 flex-shrink-0">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -201,6 +178,30 @@
     @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 1023px) {
+        aside.w-80 {
+            width: 100vw !important;
+            min-width: 0 !important;
+            max-width: 100vw !important;
+            border-radius: 0 0 2rem 2rem !important;
+        }
+        .main-chat-section {
+            padding-top: 0 !important;
+        }
+    }
+    @media (max-width: 767px) {
+        #chat-window {
+            padding: 0.5rem !important;
+        }
+        .message-input-row {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        .message-input-row input[type="text"] {
+            width: 100% !important;
+        }
+        .max-w-\[85\%\] { max-width: 98vw !important; }
     }
 </style>
 

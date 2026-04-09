@@ -21,85 +21,81 @@
          class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[40] lg:hidden" x-cloak>
     </div>
 {{-- SIDEBAR --}}
-<aside :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" 
-       class="w-72 bg-white flex flex-col fixed h-full z-50 border-r border-gray-100 shadow-sm overflow-hidden transition-transform duration-300 ease-in-out">
-    
-    {{-- Branding (Optionnel si tu l'as déjà en haut, sinon garde-le) --}}
-    <div class="p-8">
-    </div>
+<aside :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+       class="w-72 bg-gradient-to-b from-blue-50 via-white to-white flex flex-col fixed h-full z-50  shadow-lg overflow-hidden transition-transform duration-300 ease-in-out">
 
-    <nav class="flex-1 px-4 overflow-y-auto space-y-6 [scrollbar-width:none]">
+    <nav class="flex-1 px-4 overflow-y-auto space-y-8 [scrollbar-width:none]">
+        <div class=" my-2"></div>
         {{-- SECTION : GESTION CABINET --}}
         <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-4 ml-4">Gestion Cabinet</p>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-500 mb-4 ml-4">Gestion Cabinet</p>
             <div class="flex flex-col gap-1">
-                <a href="{{ route('doctor.dashboard') }}" 
-                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.dashboard') ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-600' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                    <span class="font-bold text-sm">Vue d'ensemble</span>
+                <a href="{{ route('doctor.dashboard') }}"
+                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.dashboard') ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <svg class="w-6 h-6 mr-3 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    <span class="font-bold text-base">Vue d'ensemble</span>
                 </a>
 
-                <a href="{{ route('doctor.patients.index') }}" 
-                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.patients*') ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-600' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                    <span class="font-bold text-sm">Mes Patients</span>
+                <a href="{{ route('doctor.patients.index') }}"
+                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.patients*') ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <svg class="w-6 h-6 mr-3 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <span class="font-bold text-base">Mes Patients</span>
                 </a>
 
-                <a href="{{ route('doctor.rendezvous.index') }}" 
-                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.rendezvous*') ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-600' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <span class="font-bold text-sm">Agenda</span>
+                <a href="{{ route('doctor.rendezvous.index') }}"
+                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.rendezvous*') ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <svg class="w-6 h-6 mr-3 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="font-bold text-base">Agenda</span>
                 </a>
 
                 {{-- Ajout de l'onglet Analyses --}}
-<a href="{{ route('doctor.analyses.index') }}" 
-    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.analyses*') ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-600' }}">
-    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-    </svg>
-    <span class="font-bold text-sm">Analyses & Labo</span>
-</a>
+                <a href="{{ route('doctor.analyses.index') }}"
+                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.analyses*') ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <svg class="w-6 h-6 mr-3 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    <span class="font-bold text-base">Analyses & Labo</span>
+                </a>
             </div>
         </div>
 
+        <div class="border-b border-blue-100 my-2"></div>
         {{-- SECTION : CONFIGURATION --}}
         <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-4 ml-4">Configuration</p>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-500 mb-4 ml-4">Configuration</p>
             <div class="flex flex-col gap-1">
-                <a href="{{ route('doctor.availabilities.index') }}" 
-                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.availabilities*') ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-600' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span class="font-bold text-sm">Mes Horaires</span>
+                <a href="{{ route('doctor.availabilities.index') }}"
+                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.availabilities*') ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <svg class="w-6 h-6 mr-3 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="font-bold text-base">Mes Horaires</span>
                 </a>
 
-                <a href="{{ route('doctor.prescriptions.index') }}" 
-                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.prescriptions*') ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-600' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    <span class="font-bold text-sm">Ordonnances</span>
+                <a href="{{ route('doctor.prescriptions.index') }}"
+                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.prescriptions*') ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <svg class="w-6 h-6 mr-3 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span class="font-bold text-base">Ordonnances</span>
                 </a>
 
-                <a href="{{ route('doctor.messages.index') }}" 
-                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.messages*') ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-600' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                    <span class="font-bold text-sm">Messagerie</span>
+                <a href="{{ route('doctor.messages.index') }}"
+                    class="flex items-center px-4 py-3 rounded-xl transition-all duration-300 no-underline {{ request()->routeIs('doctor.messages*') ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <svg class="w-6 h-6 mr-3 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <span class="font-bold text-base">Messagerie</span>
                 </a>
             </div>
         </div>
     </nav>
 
-   {{-- FOOTER SIDEBAR : Bouton Déconnexion Uniquement --}}
-    <div class="p-4 mt-auto border-t border-gray-100 bg-gray-50/50 mb-20">
+    {{-- FOOTER SIDEBAR : Bouton Déconnexion Uniquement --}}
+    <div class="p-6  mt-auto border-t border-blue-100 bg-gradient-to-r from-blue-50 to-white mb-16">
         @auth
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" 
-                    class="group w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-rose-600 bg-white shadow-sm border border-rose-100/50 hover:bg-rose-50 hover:text-rose-700 transition-all duration-300 font-black uppercase text-[10px] tracking-[0.15em] cursor-pointer">
-                    
+                <button type="submit"
+                    class="group w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white bg-gradient-to-r from-red-600 to-red-400 shadow-lg border-none hover:from-red-700 hover:to-red-500 transition-all duration-300 font-black uppercase text-[12px] tracking-[0.15em] cursor-pointer">
                     {{-- Icône Sortie --}}
-                    <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
-
                     {{ __('Déconnexion') }}
                 </button>
             </form>
@@ -107,42 +103,58 @@
     </div>
 </aside>
 
-    {{-- MAIN CONTENT --}}
-    <main class="flex-1 lg:ml-72 p-4 md:p-10 bg-[#F8FAFC] min-h-screen">
-        <div class="max-w-7xl mx-auto space-y-6 md:space-y-10">
 
-            {{-- HEADER --}}
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-10 pt-12 lg:pt-0">
-                <div>
-                    <h1 class="text-2xl md:text-4xl font-black text-gray-800">
-                        Bonjour, <span class="text-blue-600"> {{ Auth::user()->name }}</span>
-                    </h1>
-                    <p class="text-gray-500 mt-1 font-medium text-sm md:text-base">Voici l'activité de votre cabinet aujourd'hui</p>
+    {{-- MAIN CONTENT --}}
+    <main class="flex-1 lg:ml-72 p-4 md:p-10 bg-gradient-to-br from-blue-50 via-white to-white min-h-screen">
+        <div class="max-w-7xl mx-auto space-y-8 md:space-y-14">
+
+            {{-- HEADER MODERNE --}}
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 pt-12 lg:pt-0">
+                <div class="flex items-center gap-4">
+                   
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-black text-blue-700 leading-tight">
+                            Bonjour, <span class="text-blue-500">{{ Auth::user()->name }}</span>
+                        </h1>
+                        <p class="text-gray-500 mt-1 font-medium text-sm md:text-base">Voici l'activité de votre cabinet aujourd'hui</p>
+                    </div>
                 </div>
-                <div class="w-full md:w-auto">
-                    <span class="bg-white block text-center px-5 py-3 rounded-2xl shadow-sm border border-gray-100 text-sm font-bold text-gray-600">
+                <div class="w-full md:w-auto flex flex-col items-end">
+                    <span class="bg-gradient-to-r from-blue-600 to-blue-400 text-white px-7 py-4 rounded-2xl shadow-lg text-base font-bold tracking-wide border-2 border-blue-100">
                         {{ \Carbon\Carbon::now()->locale('fr')->translatedFormat('l d F Y') }}
                     </span>
                 </div>
             </div>
 
-            {{-- STATS --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <p class="text-[11px] uppercase text-gray-400 font-bold tracking-wider">RDV du jour</p>
-                    <h3 class="text-3xl font-black text-blue-600 mt-2">{{ $rendezvous->count() }}</h3>
+            {{-- STATS MODERNES --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="bg-gradient-to-br from-blue-600 to-blue-400 p-7 rounded-3xl shadow-xl border-none flex flex-col items-start hover:scale-[1.03] transition-transform">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-7 h-7 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span class="text-white text-xs font-bold uppercase tracking-widest">RDV du jour</span>
+                    </div>
+                    <h3 class="text-4xl font-black text-white drop-shadow-lg">{{ $rendezvous->count() }}</h3>
                 </div>
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <p class="text-[11px] uppercase text-gray-400 font-bold tracking-wider">Patients suivis</p>
-                    <h3 class="text-3xl font-black text-indigo-600 mt-2">{{ $totalPatients ?? 0 }}</h3>
+                <div class="bg-gradient-to-br from-indigo-600 to-indigo-400 p-7 rounded-3xl shadow-xl border-none flex flex-col items-start hover:scale-[1.03] transition-transform">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-7 h-7 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <span class="text-white text-xs font-bold uppercase tracking-widest">Patients suivis</span>
+                    </div>
+                    <h3 class="text-4xl font-black text-white drop-shadow-lg">{{ $totalPatients ?? 0 }}</h3>
                 </div>
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <p class="text-[11px] uppercase text-gray-400 font-bold tracking-wider">Messages</p>
-                    <h3 class="text-3xl font-black text-red-500 mt-2">{{ $messagesNonLus ?? 0 }}</h3>
+                <div class="bg-gradient-to-br from-rose-500 to-rose-400 p-7 rounded-3xl shadow-xl border-none flex flex-col items-start hover:scale-[1.03] transition-transform">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-7 h-7 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        <span class="text-white text-xs font-bold uppercase tracking-widest">Messages</span>
+                    </div>
+                    <h3 class="text-4xl font-black text-white drop-shadow-lg">{{ $messagesNonLus ?? 0 }}</h3>
                 </div>
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <p class="text-[11px] uppercase text-gray-400 font-bold tracking-wider">Spécialité</p>
-                    <h3 class="text-lg font-black mt-2 text-gray-700 truncate">
+                <div class="bg-gradient-to-br from-blue-900 to-blue-700 p-7 rounded-3xl shadow-xl border-none flex flex-col items-start hover:scale-[1.03] transition-transform">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-7 h-7 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87m9-9a4 4 0 11-8 0 4 4 0 018 0zm8 4a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
+                        <span class="text-white text-xs font-bold uppercase tracking-widest">Spécialité</span>
+                    </div>
+                    <h3 class="text-lg font-black mt-2 text-white truncate drop-shadow-lg">
                         {{ Auth::user()->specialite->nom_specialite ?? 'Généraliste' }}
                     </h3>
                 </div>

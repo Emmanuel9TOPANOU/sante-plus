@@ -24,7 +24,7 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid admin-responsive-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         @forelse($documents as $doc)
         <div class="group bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 relative overflow-hidden">
             
@@ -92,3 +92,29 @@
     </div>
 </div>
 @endsection
+
+<style>
+            /* Responsive grid for cards and tables */
+            @media (max-width: 1023px) {
+                .admin-responsive-grid {
+                    grid-template-columns: 1fr !important;
+                }
+            }
+            @media (min-width: 1024px) {
+                .admin-responsive-grid {
+                    grid-template-columns: repeat(4, 1fr) !important;
+                }
+            }
+            /* Responsive table overflow */
+            .admin-table-wrapper {
+                overflow-x: auto;
+                width: 100%;
+            }
+            /* Responsive form and filters */
+            @media (max-width: 767px) {
+                .admin-filter-form {
+                    flex-direction: column !important;
+                    gap: 1rem !important;
+                }
+            }
+        </style>

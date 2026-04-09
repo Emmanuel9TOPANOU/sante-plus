@@ -32,7 +32,7 @@
                 <div class="relative group">
                     <div class="absolute -inset-1 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-[3rem] blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
                     
-                    <div class="relative bg-white/90 backdrop-blur-xl rounded-[2.5rem] border border-white shadow-2xl shadow-slate-200/50 overflow-hidden">
+                    <div class="relative bg-white/90 backdrop-blur-xl rounded-[2.5rem] border border-white shadow-2xl shadow-slate-200/50 overflow-hidden admin-table-wrapper">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse min-w-[900px]">
                                 <thead>
@@ -123,4 +123,10 @@
             </div>
         </div>
     </div>
+
+    <style>
+        @media (max-width: 1023px) {
+            .admin-table-wrapper { overflow-x: auto; width: 100%; }
+        }
+    </style>
 </x-app-layout>

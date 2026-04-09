@@ -2,217 +2,241 @@
     <div x-data="{ mobileMenu: false }" class="flex min-h-screen bg-[#F8FAFC] font-sans antialiased text-slate-900">
 
         <style>
-            /* Masquer la barre de défilement */
             .no-scrollbar::-webkit-scrollbar { display: none; }
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             
-            /* Animation d'entrée douce */
             @keyframes fadeInUp {
-                from { opacity: 0; transform: translateY(15px); }
+                from { opacity: 0; transform: translateY(20px); }
                 to { opacity: 1; transform: translateY(0); }
             }
-            .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+            .animate-fade-in-up { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+            
+            .glass-effect { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+            [x-cloak] { display: none !important; }
         </style>
 
-        {{-- HEADER MOBILE --}}
-        <header class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 z-50 px-6 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-200">
-                    <span class="text-white font-black text-sm">A</span>
-                </div>
-                <span class="font-bold text-lg tracking-tight">Admin<span class="text-blue-600">Panel</span></span>
-            </div>
-            <button @click="mobileMenu = true" class="p-2 hover:bg-slate-100 rounded-xl transition">
-                <i class="fa-solid fa-bars-staggered text-xl text-slate-600"></i>
+        {{-- BOUTON HAMBURGER (Visible uniquement sur Mobile/Tablette) --}}
+        <div class="lg:hidden fixed top-4 left-4 z-[70]">
+            <button @click="mobileMenu = true" class="p-3 bg-white rounded-2xl shadow-xl border border-blue-50 text-blue-600 focus:outline-none active:scale-95 transition-transform">
+                <i class="fa-solid fa-bars-staggered text-xl"></i>
             </button>
-        </header>
+        </div>
 
-        {{-- SIDEBAR COMPLÈTE --}}
+        {{-- SIDEBAR ADMINISTRATEUR PREMIUM --}}
         <aside 
-            :class="mobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-            class="w-72 bg-white fixed h-screen z-[60] border-r border-slate-100 shadow-2xl lg:shadow-none transition-transform duration-500 ease-in-out flex flex-col">
-            
-            {{-- Header Sidebar --}}
-            <div class="p-8 flex-shrink-0 flex items-center justify-between">
-                <div class="flex items-center gap-3 group cursor-pointer">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-100 transition-transform group-hover:scale-110">
-                        <span class="text-white font-black text-xl">A</span>
+    :class="mobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+    class="w-72 bg-gradient-to-b from-blue-50 via-white to-white flex flex-col fixed h-full z-[80] shadow-2xl lg:shadow-none overflow-hidden transition-transform duration-500 ease-in-out border-r border-blue-50">
+
+    {{-- Header Sidebar : Réduit au strict minimum (p-4 au lieu de p-8) --}}
+    <div class="p-4 flex-shrink-0 flex items-center justify-between">
+        {{-- Ton logo ici --}}
+        <button @click="mobileMenu = false" class="lg:hidden p-2 text-slate-400 hover:text-red-500 transition-colors ml-auto">
+            <i class="fa-solid fa-xmark text-2xl"></i>
+        </button>
+    </div>
+
+    {{-- NAVIGATION : pt-0 et space-y-6 pour un aspect plus serré --}}
+    <nav class="flex-1 px-4 pt-0 overflow-y-auto space-y-6 no-scrollbar pb-10">
+        {{-- SECTION : GÉNÉRAL --}}
+        <div>
+            {{-- Marge négative optionnelle (mt-[-10px]) si tu veux vraiment "étouffer" l'espace --}}
+            <div class="flex mt-0 flex-col gap-1">
+                <a href="{{ route('admin.dashboard') }}"
+                   class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 no-underline 
+                   {{ request()->routeIs('admin.dashboard') ? 'bg-blue-600 text-white scale-[1.02]' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <div class="w-6 flex justify-center"><i class="fa-solid fa-chart-pie text-lg"></i></div>
+                    <span class="font-bold text-sm ml-2">Dashboard</span>
+                </a>
+
+                <a href="{{ route('admin.users.index') }}"
+                   class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 no-underline 
+                   {{ request()->routeIs('admin.users.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02]' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <div class="w-6 flex justify-center"><i class="fa-solid fa-users text-lg"></i></div>
+                    <span class="font-bold text-sm ml-2">Utilisateurs</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- SECTION : RESSOURCES --}}
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 mb-3 ml-4 opacity-70">Ressources</p>
+            <div class="flex flex-col gap-1">
+                <a href="{{ route('admin.medecins.index') }}" 
+                   class="group flex items-center px-4 py-3 rounded-2xl font-bold text-sm transition-all duration-300 no-underline
+                   {{ request()->routeIs('admin.medecins.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02]' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center transition-all group-hover:scale-110 {{ request()->routeIs('admin.medecins.*') ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-600' }}">
+                        <i class="fa-solid fa-user-doctor text-xs"></i>
                     </div>
-                    <span class="font-black text-xl text-slate-800 tracking-tight">
-                        Admin<span class="text-blue-600">Panel</span>
-                    </span>
-                </div>
-                <button @click="mobileMenu = false" class="lg:hidden p-2 text-slate-400 hover:text-red-500 transition">
-                    <i class="fa-solid fa-xmark text-xl"></i>
+                    <span class="ml-2">Médecins</span>
+                </a>
+
+                <a href="{{ route('admin.specialites.index') }}" 
+                   class="group flex items-center px-4 py-3 rounded-2xl font-bold text-sm transition-all duration-300 no-underline
+                   {{ request()->routeIs('admin.specialites.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02]' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center transition-all group-hover:scale-110 {{ request()->routeIs('admin.specialites.*') ? 'bg-white/20 text-white' : 'bg-purple-50 text-purple-600' }}">
+                        <i class="fa-solid fa-stethoscope text-xs"></i>
+                    </div>
+                    <span class="ml-2">Spécialités</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- SECTION : MAINTENANCE --}}
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 mb-3 ml-4 opacity-70">Maintenance</p>
+            <div class="flex flex-col gap-1">
+                <a href="{{ route('admin.settings.index') }}" 
+                   class="group flex items-center px-4 py-3 rounded-2xl font-bold text-sm transition-all duration-300 no-underline
+                   {{ request()->routeIs('admin.settings.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02]' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-600' }}">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center transition-all group-hover:scale-110 {{ request()->routeIs('admin.settings.*') ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600' }}">
+                        <i class="fa-solid fa-gear text-xs"></i>
+                    </div>
+                    <span class="ml-2">Paramètres</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    {{-- FOOTER : DÉCONNEXION --}}
+     <div class="p-6  mt-auto border-t border-blue-100 bg-gradient-to-r from-blue-50 to-white mb-16">
+        @auth
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"
+                    class="group w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white bg-gradient-to-r from-red-600 to-red-400 shadow-lg border-none hover:from-red-700 hover:to-red-500 transition-all duration-300 font-black uppercase text-[12px] tracking-[0.15em] cursor-pointer">
+                    {{-- Icône Sortie --}}
+                    <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    {{ __('Déconnexion') }}
                 </button>
-            </div>
-
-            {{-- Navigation --}}
-            <nav class="flex-1 px-4 space-y-8 overflow-y-auto no-scrollbar pb-10">
-                
-                {{-- SECTION : GÉNÉRAL --}}
-                <div class="space-y-1">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4 mb-4">Général</p>
-                    
-                    <a href="{{ route('admin.dashboard') }}"
-                       class="flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300
-                       {{ request()->routeIs('admin.dashboard') ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600' }}">
-                        <div class="w-6 flex justify-center"><i class="fa-solid fa-chart-pie text-lg"></i></div>
-                        Dashboard
-                    </a>
-
-                    <a href="{{ route('admin.users.index') }}"
-                       class="flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300
-                       {{ request()->routeIs('admin.users.*') ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600' }}">
-                        <div class="w-6 flex justify-center"><i class="fa-solid fa-users text-lg"></i></div>
-                        Utilisateurs
-                    </a>
-                </div>
-
-                {{-- SECTION : RESSOURCES MÉDICALES --}}
-                <div class="space-y-1">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4 mb-4">Ressources</p>
-                    
-                    <a href="{{ route('admin.medecins.index') }}" 
-                       class="group flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all
-                       {{ request()->routeIs('admin.medecins.*') ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600' }}">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 {{ request()->routeIs('admin.medecins.*') ? 'bg-white/20' : 'bg-emerald-50 text-emerald-600' }}">
-                            <i class="fa-solid fa-user-doctor"></i>
-                        </div>
-                        Médecins
-                    </a>
-
-                    <a href="{{ route('admin.specialites.index') }}" 
-                       class="group flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all
-                       {{ request()->routeIs('admin.specialites.*') ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600' }}">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 {{ request()->routeIs('admin.specialites.*') ? 'bg-white/20' : 'bg-purple-50 text-purple-600' }}">
-                            <i class="fa-solid fa-stethoscope"></i>
-                        </div>
-                        Spécialités
-                    </a>
-                </div>
-
-                {{-- SECTION : MAINTENANCE --}}
-                <div class="space-y-1">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4 mb-4">Maintenance</p>
-                    
-                    <a href="{{ route('admin.settings.index') }}" 
-                       class="group flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all
-                       {{ request()->routeIs('admin.settings.*') ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600' }}">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 {{ request()->routeIs('admin.settings.*') ? 'bg-white/20' : 'bg-slate-100 text-slate-600' }}">
-                            <i class="fa-solid fa-gear"></i>
-                        </div>
-                        Paramètres
-                    </a>
-                </div>
-            </nav>
-
-            {{-- Footer Sidebar (Déconnexion fixe) --}}
-            <div class="p-6 flex-shrink-0 bg-white border-t border-slate-50">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="group w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest text-red-500 bg-red-50 hover:bg-red-500 hover:text-white transition-all duration-500 hover:shadow-lg hover:shadow-red-200">
-                        <i class="fa-solid fa-power-off transition-transform group-hover:rotate-90"></i>
-                        Déconnexion
-                    </button>
-                </form>
-            </div>
-        </aside>
-
-        {{-- OVERLAY MOBILE --}}
-        <div x-show="mobileMenu" @click="mobileMenu = false" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 lg:hidden"></div>
+            </form>
+        @endauth
+    </div>
+</aside>
 
         {{-- CONTENU PRINCIPAL --}}
-        <main class="flex-1 lg:ml-72 p-6 md:p-12 pt-24 lg:pt-12 transition-all duration-500">
-            <div class="max-w-7xl mx-auto space-y-10 animate-fade-in-up">
-
-                {{-- HEADER PAGE --}}
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Tableau de bord</h1>
-                        <p class="text-slate-500 mt-1 font-medium">Bienvenue sur l'interface de gestion HospiConnect.</p>
+        <main class="flex-1 lg:ml-72 p-4 md:p-8 lg:p-10 pt-24 lg:pt-10 transition-all duration-300">
+            <div class="max-w-7xl mx-auto space-y-8 md:space-y-10 animate-fade-in-up">
+                
+                {{-- HEADER MODERNE --}}
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                    <div class="text-left">
+                        <h1 class="text-2xl md:text-4xl font-black text-blue-700 leading-tight">
+                            Dashboard <span class="text-blue-500">Admin</span>
+                        </h1>
+                        <p class="text-gray-500 mt-1 font-medium text-xs md:text-base">Gestion globale de la plateforme Santé +</p>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="px-4 py-2 bg-white border border-slate-100 rounded-2xl text-xs font-bold shadow-sm text-slate-600">
-                            <i class="fa-regular fa-calendar-days mr-2"></i>{{ now()->translatedFormat('d F Y') }}
+                    <div class="w-full sm:w-auto">
+                        <span class="inline-block w-full sm:w-auto text-center bg-white text-blue-600 px-6 py-3.5 rounded-2xl shadow-sm text-xs md:text-sm font-bold border border-blue-50">
+                            {{ now()->translatedFormat('l d F Y') }}
                         </span>
                     </div>
                 </div>
 
                 {{-- STATS GRID --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @php
-                        $cards = [
-                            ['label' => 'Utilisateurs', 'val' => $stats['total_users'], 'color' => 'blue', 'icon' => 'fa-users'],
-                            ['label' => 'Médecins', 'val' => $stats['total_medecins'], 'color' => 'emerald', 'icon' => 'fa-user-md'],
-                            ['label' => 'Patients', 'val' => $stats['total_patients'], 'color' => 'indigo', 'icon' => 'fa-hospital-user']
-                        ];
-                    @endphp
-
-                    @foreach($cards as $card)
-                    <div class="group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-xs uppercase text-slate-400 font-black tracking-widest">{{ $card['label'] }}</p>
-                                <h3 class="text-4xl font-black mt-3 group-hover:scale-105 transition-transform origin-left">{{ $card['val'] }}</h3>
-                            </div>
-                            <div class="w-12 h-12 bg-{{ $card['color'] }}-50 text-{{ $card['color'] }}-600 rounded-2xl flex items-center justify-center text-xl group-hover:rotate-12 transition-transform">
-                                <i class="fa-solid {{ $card['icon'] }}"></i>
-                            </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    <div class="bg-gradient-to-br from-blue-600 to-blue-400 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-xl hover:scale-[1.02] transition-transform relative overflow-hidden group">
+                        <div class="flex items-center gap-2 mb-2 relative z-10">
+                            <i class="fa-solid fa-users text-white/80 text-xl"></i>
+                            <span class="text-white text-[10px] font-black uppercase tracking-widest text-left">Total Utilisateurs</span>
                         </div>
-                        @if($card['label'] == 'Utilisateurs')
-                            <p class="text-xs text-emerald-500 font-bold mt-4 flex items-center gap-1">
-                                <i class="fa-solid fa-arrow-trend-up"></i> +{{ $stats['new_users_month'] }} ce mois-ci
-                            </p>
-                        @endif
+                        <h3 class="text-4xl md:text-5xl font-black text-white relative z-10 text-left">{{ $stats['total_users'] }}</h3>
+                        <div class="mt-4 relative z-10 text-left">
+                            <span class="px-2 py-1 bg-white/20 rounded-lg text-[10px] font-black text-white italic">+{{ $stats['new_users_month'] }} ce mois</span>
+                        </div>
                     </div>
-                    @endforeach
+
+                    <div class="bg-gradient-to-br from-emerald-600 to-emerald-400 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-xl hover:scale-[1.02] transition-transform relative overflow-hidden group">
+                        <div class="flex items-center gap-2 mb-2 relative z-10 text-left">
+                            <i class="fa-solid fa-user-md text-white/80 text-xl"></i>
+                            <span class="text-white text-[10px] font-black uppercase tracking-widest">Médecins Actifs</span>
+                        </div>
+                        <h3 class="text-4xl md:text-5xl font-black text-white relative z-10 text-left">{{ $stats['total_medecins'] }}</h3>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-600 to-indigo-400 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-xl hover:scale-[1.02] transition-transform relative overflow-hidden group sm:col-span-2 lg:col-span-1">
+                        <div class="flex items-center gap-2 mb-2 relative z-10 text-left">
+                            <i class="fa-solid fa-hospital-user text-white/80 text-xl"></i>
+                            <span class="text-white text-[10px] font-black uppercase tracking-widest">Total Patients</span>
+                        </div>
+                        <h3 class="text-4xl md:text-5xl font-black text-white relative z-10 text-left">{{ $stats['total_patients'] }}</h3>
+                    </div>
                 </div>
 
-                {{-- SECTION TABLEAU RÉCENT --}}
-                <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-500">
-                    <div class="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
-                        <h2 class="font-black text-sm uppercase tracking-widest text-slate-800">Inscriptions récentes</h2>
-                        <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 transition">Voir tout</a>
+                {{-- TABLEAU DES INSCRIPTIONS --}}
+                <div class="bg-white rounded-[2rem] md:rounded-[3rem] p-5 md:p-8 shadow-sm border border-gray-100">
+                    <div class="flex flex-row justify-between items-center mb-8 md:mb-10">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
+                            <h2 class="font-black uppercase text-gray-400 text-[10px] md:text-sm tracking-widest">Dernières Inscriptions</h2>
+                        </div>
+                        <a href="{{ route('admin.users.index') }}" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-colors no-underline">
+                            Voir tout
+                        </a>
                     </div>
-                    <div class="overflow-x-auto no-scrollbar">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="text-[10px] uppercase text-slate-400 tracking-widest bg-slate-50/20">
-                                    <th class="px-8 py-5 font-black">Membre</th>
-                                    <th class="px-8 py-5 font-black">Rôle</th>
-                                    <th class="px-8 py-5 font-black text-right">Date d'inscription</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                @foreach($recentUsers as $user)
-                                <tr class="group hover:bg-blue-50/30 transition-colors">
-                                    <td class="px-8 py-5">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black shadow-sm group-hover:scale-110 transition">
-                                                {{ strtoupper(substr($user->name, 0, 1)) }}
+
+                    <div class="overflow-x-auto -mx-5 md:mx-0">
+                        <div class="inline-block min-w-full align-middle px-5 md:px-0">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em] border-b border-gray-50">
+                                        <th class="pb-5 font-black">Utilisateur</th>
+                                        <th class="pb-5 font-black hidden sm:table-cell">Rôle</th>
+                                        <th class="pb-5 font-black hidden md:table-cell">Date</th>
+                                        <th class="pb-5 font-black text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50">
+                                    @foreach($recentUsers as $user)
+                                    <tr class="group hover:bg-gray-50/50 transition-colors">
+                                        <td class="py-5">
+                                            <div class="flex items-center">
+                                                <div class="w-10 h-10 rounded-xl bg-blue-50 flex-shrink-0 flex items-center justify-center mr-3 md:mr-4 text-sm font-black text-blue-600">
+                                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                </div>
+                                                <div class="flex flex-col min-w-0">
+                                                    <span class="text-sm font-bold text-gray-800 truncate">{{ $user->name }}</span>
+                                                    <span class="text-[10px] text-gray-400 font-medium truncate max-w-[120px] md:max-w-none">{{ $user->email }}</span>
+                                                    <span class="sm:hidden mt-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-black w-fit uppercase">{{ $user->role }}</span>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p class="font-bold text-sm text-slate-800">{{ $user->name }}</p>
-                                                <p class="text-xs text-slate-400 font-medium">{{ $user->email }}</p>
+                                        </td>
+                                        <td class="py-5 hidden sm:table-cell">
+                                            <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                                                {{ $user->role }}
+                                            </span>
+                                        </td>
+                                        <td class="py-5 hidden md:table-cell">
+                                            <div class="flex flex-col text-left">
+                                                <span class="text-xs font-bold text-gray-600">{{ $user->created_at->translatedFormat('d M Y') }}</span>
+                                                <span class="text-[10px] text-gray-400">{{ $user->created_at->format('H:i') }}</span>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-8 py-5">
-                                        <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-tighter group-hover:bg-white transition-colors">
-                                            {{ $user->role }}
-                                        </span>
-                                    </td>
-                                    <td class="px-8 py-5 text-right text-xs text-slate-400 font-bold">
-                                        {{ $user->created_at->translatedFormat('d M H:i') }}
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                        </td>
+                                        <td class="py-5 text-right">
+                                            <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex items-center justify-center w-9 h-9 bg-white border border-gray-100 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
+
+        {{-- OVERLAY MOBILE --}}
+        <div x-show="mobileMenu" 
+             x-transition:enter="transition opacity-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition opacity-out duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="mobileMenu = false" 
+             class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[75] lg:hidden" x-cloak></div>
     </div>
 </x-app-layout>

@@ -37,6 +37,12 @@
         .btn-premium:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3); }
     </style>
 
+    <style>
+        @media (max-width: 1023px) {
+            .admin-table-wrapper { overflow-x: auto; width: 100%; }
+        }
+    </style>
+
     <div class="max-w-5xl mx-auto py-10 px-6 space-y-12">
 
         {{-- ================= HEADER ================= --}}
