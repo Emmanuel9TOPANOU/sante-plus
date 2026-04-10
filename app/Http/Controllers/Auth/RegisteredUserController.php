@@ -91,8 +91,9 @@ class RegisteredUserController extends Controller
                 // On redirige vers login avec le message de succès que ton AlpineJS affichera
                 return redirect()->route('login')->with('success', $message);
             });
-        } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['error' => "Une erreur est survenue lors de l'inscription."]);
-        }
+      } catch (\Exception $e) {
+    // Supprime le return back() et mets ça à la place :
+    dd($e->getMessage()); 
+}
     }
 }
