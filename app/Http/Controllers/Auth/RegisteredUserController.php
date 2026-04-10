@@ -21,8 +21,6 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        // On récupère les spécialités. 
-        // Note : Assure-toi que ton modèle Specialite est bien lié à la table 'specialites'
         $specialites = Specialite::all(); 
         return view('auth.register', compact('specialites'));
     }
@@ -36,7 +34,7 @@ class RegisteredUserController extends Controller
         $rules = [
             'name'      => ['required', 'string', 'max:255'],
             'email'     => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            // CORRECTION : J'ai retiré 'confirmed' car tu n'as qu'un seul champ password dans ta vue
+            // 'confirmed' retiré car un seul champ password dans ta vue premium
             'password'  => ['required', Rules\Password::defaults()],
             'role'      => ['required', 'in:patient,medecin'],
             'telephone' => ['required', 'string', 'max:20'],
@@ -77,7 +75,7 @@ class RegisteredUserController extends Controller
                         'user_id'        => $user->id,
                         'specialite_id'  => $request->specialite_id,
                         'matricule'      => $request->matricule,
-                        'telephone_pro'  => $request->telephone, // Par défaut le même
+                        'telephone_pro'  => $request->telephone,
                         'est_valide'     => false,
                     ]);
                     
@@ -88,10 +86,10 @@ class RegisteredUserController extends Controller
 
                 event(new Registered($user));
 
-                // On redirige vers login avec le message de succès que ton AlpineJS affichera
                 return redirect()->route('login')->with('success', $message);
             });
         } catch (\Exception $e) {
+            // Retour à l'état initial : redirection avec les erreurs
             return back()->withInput()->withErrors(['error' => "Une erreur est survenue lors de l'inscription."]);
         }
     }
