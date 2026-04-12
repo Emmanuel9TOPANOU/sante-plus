@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NoteController;
@@ -77,6 +78,17 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::patch('/settings/update', [AdminSettingController::class, 'update'])->name('settings.update');
 });
+
+Route::get('/force-migrate', function () {
+    try {
+        // Cette commande va forcer la création des colonnes manquantes
+        Artisan::call('migrate', ['--force' => true]);
+        return "Migration réussie ! : " . Artisan::output();
+    } catch (\Exception $e) {
+        return "Erreur lors de la migration : " . $e->getMessage();
+    }
+});
+
 
 /* --- ESPACE MÉDECIN --- */
 Route::middleware(['auth', 'verified', 'role:medecin', 'check.medecin'])
