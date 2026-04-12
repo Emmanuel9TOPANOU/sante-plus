@@ -88,9 +88,9 @@ class RegisteredUserController extends Controller
 
                 return redirect()->route('login')->with('success', $message);
             });
-        } catch (\Exception $e) {
-            // Retour à l'état initial : redirection avec les erreurs
-            return back()->withInput()->withErrors(['error' => "Une erreur est survenue lors de l'inscription."]);
-        }
+       } catch (\Exception $e) {
+    // Cela va afficher l'erreur brute à l'écran (ex: "Column 'sexe' not found" ou "Email already exists")
+    dd($e->getMessage()); 
+}
     }
 }
