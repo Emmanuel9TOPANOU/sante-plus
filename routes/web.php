@@ -81,9 +81,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // Cette commande va forcer la création des colonnes manquantes
-        Artisan::call('migrate', ['--force' => true]);
-        return "Migration réussie ! : " . Artisan::output();
+        // Le "fresh" va supprimer les tables bloquantes et tout reconstruire
+        Artisan::call('migrate:fresh', ['--force' => true]);
+        return "Migration FRESH réussie ! Tout a été réinitialisé : " . Artisan::output();
     } catch (\Exception $e) {
         return "Erreur lors de la migration : " . $e->getMessage();
     }
