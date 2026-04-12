@@ -81,7 +81,7 @@ class RegisteredUserController extends Controller
                     
                     $message = "Votre demande d'inscription médecin a été transmise pour validation.";
                 } else {
-                    $message = "Votre compte patient a été créé avec succès.";
+                    $message = "Votre compte patient a été créé avec succès";
                 }
 
                 event(new Registered($user));
