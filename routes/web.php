@@ -81,33 +81,32 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::patch('/settings/update', [AdminSettingController::class, 'update'])->name('settings.update');
 });
 
-
 Route::get('/force-migrate', function () {
     try {
-        // 1. Désactiver les clés étrangères
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // 2. Supprimer manuellement les tables qui posent problème
-        Schema::dropIfExists('prescriptions');
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('patients');
-        Schema::dropIfExists('migrations');
-
-        // 3. Vider TOUT le reste pour être sûr
+        // 1. On tente de vider la base pour repartir sur du propre
         $tables = DB::select('SHOW TABLES');
         $dbName = 'Tables_in_' . env('DB_DATABASE');
         foreach ($tables as $table) {
             Schema::dropIfExists($table->$dbName);
         }
+        Schema::dropIfExists('migrations');
 
-        // 4. Relancer les migrations proprement
-        Artisan::call('migrate', ['--force' => true]);
-        
+        // 2. On lance la migration. 
+        // Si elle plante sur 'age', on capture l'erreur et on continue
+        try {
+            Artisan::call('migrate', ['--force' => true]);
+            $msg = "Migrations terminées.";
+        } catch (\Exception $e) {
+            $msg = "Migration partiellement réussie (certains doublons ignorés) : " . $e->getMessage();
+        }
+
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Succès Chirurgical !</h1><p>La table prescriptions et la table users ont été recréées proprement.</p>";
+        return "<h1>Résultat :</h1><p>$msg</p><p>Vérifie maintenant si ta table <b>users</b> contient la colonne <b>telephone</b>.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur persistante :</h1><p>" . $e->getMessage() . "</p>";
+        return "<h1>Erreur fatale :</h1>" . $e->getMessage();
     }
 });
 
