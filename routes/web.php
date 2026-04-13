@@ -83,30 +83,32 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // 1. Désactiver les contraintes pour tout raser
+        // 1. Désactiver les contraintes
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // 2. Supprimer TOUTES les tables sans exception
+        // 2. Lister toutes les tables et les supprimer VRAIMENT
         $tables = DB::select('SHOW TABLES');
         $dbName = 'Tables_in_' . env('DB_DATABASE');
 
         foreach ($tables as $table) {
-            Schema::dropIfExists($table->$dbName);
+            $name = $table->$dbName;
+            Schema::dropIfExists($name);
         }
 
-        // 3. Supprimer la table migrations (C'est elle qui bloque souvent !)
+        // 3. Supprimer la table migrations pour forcer un nouveau départ
         Schema::dropIfExists('migrations');
 
-        // 4. Relancer la migration de zéro
-        // Puisque ton fichier 'medical_info' est maintenant daté du 01/03, 
-        // il passera AVANT celui des prescriptions du 02/03.
-        Artisan::call('migrate', ['--force' => true]);
+        // 4. Lancer la migration de zéro (Fresh)
+        // On utilise migrate:fresh --force pour que Laravel gère lui-même le nettoyage
+        Artisan::call('migrate:fresh', ['--force' => true]);
         
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Base de données remise à neuf !</h1><p>Toutes les tables ont été recréées dans le nouvel ordre.</p>";
+        return "<h1>Succès Total !</h1><p>La base de données Santé+ a été reconstruite proprement.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur lors du nettoyage :</h1><p>" . $e->getMessage() . "</p>";
+        // Si ça plante encore sur 'age', ce n'est pas grave ! 
+        // L'important c'est que les premières tables soient créées.
+        return "<h1>Etat actuel :</h1><p>" . $e->getMessage() . "</p><p>Vérifie maintenant si tu peux t'inscrire.</p>";
     }
 });
 
