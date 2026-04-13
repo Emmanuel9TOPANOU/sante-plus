@@ -85,26 +85,28 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // 1. Désactiver les contraintes au niveau global de la session
+        // 1. On coupe les vérifications pour pouvoir tout supprimer
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // 2. Récupérer toutes les tables et les supprimer une par une
+        // 2. On récupère le nom de toutes les tables existantes
         $tables = DB::select('SHOW TABLES');
         $dbName = 'Tables_in_' . env('DB_DATABASE');
         
         foreach ($tables as $table) {
             Schema::dropIfExists($table->$dbName);
         }
+        
+        // On vide aussi la table des migrations pour que Laravel reparte de zéro
+        Schema::dropIfExists('migrations');
 
-        // 3. Maintenant que la base est vide, on lance la migration
+        // 3. On relance TOUTES tes migrations dans l'ordre de tes fichiers
         Artisan::call('migrate', ['--force' => true]);
         
-        // 4. Réactiver la sécurité
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Succès Total !</h1><p>La base Railway a été vidée et reconstruite proprement.</p>";
+        return "<h1>Félicitations !</h1><p>Toutes tes migrations (y compris l'ajout d'âge et poids) ont été appliquées sur une base neuve.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur persistante :</h1>" . $e->getMessage();
+        return "<h1>Erreur :</h1>" . $e->getMessage();
     }
 });
 
