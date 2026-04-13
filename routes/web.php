@@ -84,30 +84,30 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // 1. Désactiver les contraintes de clés étrangères
+        // 1. Désactiver les clés étrangères
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // 2. Récupérer la liste des tables
-        $tables = DB::select('SHOW TABLES');
-        $dbName = 'Tables_in_' . env('DB_DATABASE');
-
-        // 3. Supprimer chaque table proprement
-        foreach ($tables as $table) {
-            $name = $table->$dbName;
-            Schema::dropIfExists($name);
-        }
-
-        // 4. Supprimer la table des migrations pour repartir de zéro
+        // 2. Supprimer manuellement les tables qui posent problème
+        Schema::dropIfExists('prescriptions');
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('patients');
         Schema::dropIfExists('migrations');
 
-        // 5. Relancer toutes les migrations (Laravel relira tes fichiers dans l'ordre)
+        // 3. Vider TOUT le reste pour être sûr
+        $tables = DB::select('SHOW TABLES');
+        $dbName = 'Tables_in_' . env('DB_DATABASE');
+        foreach ($tables as $table) {
+            Schema::dropIfExists($table->$dbName);
+        }
+
+        // 4. Relancer les migrations proprement
         Artisan::call('migrate', ['--force' => true]);
         
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Succès !</h1><p>La base Railway a été réinitialisée et tes migrations ont été appliquées.</p>";
+        return "<h1>Succès Chirurgical !</h1><p>La table prescriptions et la table users ont été recréées proprement.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur :</h1><p>" . $e->getMessage() . "</p>";
+        return "<h1>Erreur persistante :</h1><p>" . $e->getMessage() . "</p>";
     }
 });
 
