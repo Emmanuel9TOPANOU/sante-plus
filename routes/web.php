@@ -82,29 +82,31 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 });
 
 
-
 Route::get('/force-migrate', function () {
     try {
-        // 1. On coupe les vérifications pour pouvoir tout supprimer
+        // 1. Désactiver TOTALEMENT les contraintes
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // 2. On récupère le nom de toutes les tables existantes
+        // 2. Récupérer toutes les tables
         $tables = DB::select('SHOW TABLES');
         $dbName = 'Tables_in_' . env('DB_DATABASE');
-        
-        foreach ($tables as $table) {
-            Schema::dropIfExists($table->$dbName);
-        }
-        
-        // On vide aussi la table des migrations pour que Laravel reparte de zéro
-        Schema::dropIfExists('migrations');
 
-        // 3. On relance TOUTES tes migrations dans l'ordre de tes fichiers
+        foreach ($tables as $table) {
+            $name = $table->$dbName;
+            // On supprime physiquement la table, même la table 'migrations'
+            DB::statement("DROP TABLE IF EXISTS `$name`顺利");
+        }
+
+        // 3. Forcer Laravel à oublier tout son historique de migration
+        // On s'assure que la table migrations est bien partie
+        DB::statement('DROP TABLE IF EXISTS migrations');
+
+        // 4. Lancer la migration (Laravel va croire que c'est la toute première fois)
         Artisan::call('migrate', ['--force' => true]);
         
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Félicitations !</h1><p>Toutes tes migrations (y compris l'ajout d'âge et poids) ont été appliquées sur une base neuve.</p>";
+        return "<h1>Succès !</h1><p>La base a été réinitialisée. Tes fichiers sont maintenant bien synchronisés.</p>";
     } catch (\Exception $e) {
         return "<h1>Erreur :</h1>" . $e->getMessage();
     }
