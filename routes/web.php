@@ -84,31 +84,30 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // 1. Désactiver TOTALEMENT les contraintes
+        // 1. Désactiver les contraintes de clés étrangères
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // 2. Récupérer toutes les tables
+        // 2. Récupérer la liste des tables
         $tables = DB::select('SHOW TABLES');
         $dbName = 'Tables_in_' . env('DB_DATABASE');
 
+        // 3. Supprimer chaque table proprement
         foreach ($tables as $table) {
             $name = $table->$dbName;
-            // On supprime physiquement la table, même la table 'migrations'
-            DB::statement("DROP TABLE IF EXISTS `$name`顺利");
+            Schema::dropIfExists($name);
         }
 
-        // 3. Forcer Laravel à oublier tout son historique de migration
-        // On s'assure que la table migrations est bien partie
-        DB::statement('DROP TABLE IF EXISTS migrations');
+        // 4. Supprimer la table des migrations pour repartir de zéro
+        Schema::dropIfExists('migrations');
 
-        // 4. Lancer la migration (Laravel va croire que c'est la toute première fois)
+        // 5. Relancer toutes les migrations (Laravel relira tes fichiers dans l'ordre)
         Artisan::call('migrate', ['--force' => true]);
         
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Succès !</h1><p>La base a été réinitialisée. Tes fichiers sont maintenant bien synchronisés.</p>";
+        return "<h1>Succès !</h1><p>La base Railway a été réinitialisée et tes migrations ont été appliquées.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur :</h1>" . $e->getMessage();
+        return "<h1>Erreur :</h1><p>" . $e->getMessage() . "</p>";
     }
 });
 
