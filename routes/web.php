@@ -83,32 +83,29 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // 1. Désactiver les contraintes
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-
-        // 2. Lister toutes les tables et les supprimer VRAIMENT
-        $tables = DB::select('SHOW TABLES');
-        $dbName = 'Tables_in_' . env('DB_DATABASE');
-
-        foreach ($tables as $table) {
-            $name = $table->$dbName;
-            Schema::dropIfExists($name);
+        // 1. On force l'ajout de la colonne 'telephone' si elle n'existe pas
+        if (!Schema::hasColumn('users', 'telephone')) {
+            DB::statement("ALTER TABLE users ADD COLUMN telephone VARCHAR(255) NULL AFTER password");
         }
 
-        // 3. Supprimer la table migrations pour forcer un nouveau départ
-        Schema::dropIfExists('migrations');
+        // 2. On ajoute aussi les autres colonnes manquantes pour ton formulaire
+        $columns = [
+            'sexe' => "VARCHAR(10) NULL",
+            'date_naissance' => "DATETIME NULL",
+            'adresse' => "TEXT NULL",
+            'role' => "VARCHAR(50) DEFAULT 'patient'",
+            'status' => "VARCHAR(50) DEFAULT 'active'"
+        ];
 
-        // 4. Lancer la migration de zéro (Fresh)
-        // On utilise migrate:fresh --force pour que Laravel gère lui-même le nettoyage
-        Artisan::call('migrate:fresh', ['--force' => true]);
-        
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        foreach ($columns as $col => $definition) {
+            if (!Schema::hasColumn('users', $col)) {
+                DB::statement("ALTER TABLE users ADD COLUMN $col $definition");
+            }
+        }
 
-        return "<h1>Succès Total !</h1><p>La base de données Santé+ a été reconstruite proprement.</p>";
+        return "<h1>Succès Manuel !</h1><p>Les colonnes pour l'inscription ont été injectées directement.</p>";
     } catch (\Exception $e) {
-        // Si ça plante encore sur 'age', ce n'est pas grave ! 
-        // L'important c'est que les premières tables soient créées.
-        return "<h1>Etat actuel :</h1><p>" . $e->getMessage() . "</p><p>Vérifie maintenant si tu peux t'inscrire.</p>";
+        return "<h1>Erreur :</h1><p>" . $e->getMessage() . "</p>";
     }
 });
 
