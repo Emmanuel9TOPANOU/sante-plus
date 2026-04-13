@@ -83,29 +83,39 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // 1. On force l'ajout de la colonne 'telephone' si elle n'existe pas
+        // 1. On s'assure que 'users' est prêt
         if (!Schema::hasColumn('users', 'telephone')) {
             DB::statement("ALTER TABLE users ADD COLUMN telephone VARCHAR(255) NULL AFTER password");
         }
 
-        // 2. On ajoute aussi les autres colonnes manquantes pour ton formulaire
-        $columns = [
-            'sexe' => "VARCHAR(10) NULL",
-            'date_naissance' => "DATETIME NULL",
-            'adresse' => "TEXT NULL",
-            'role' => "VARCHAR(50) DEFAULT 'patient'",
-            'status' => "VARCHAR(50) DEFAULT 'active'"
-        ];
+        // 2. On crée la table 'medecins' avec tes colonnes exactes
+        // On désactive les clés étrangères temporairement pour éviter les erreurs de dépendance
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        DB::statement("DROP TABLE IF EXISTS medecins"); // On nettoie si une version ratée existe
+        
+        DB::statement("
+            CREATE TABLE medecins (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                user_id BIGINT UNSIGNED NOT NULL,
+                specialite_id BIGINT UNSIGNED NOT NULL,
+                matricule VARCHAR(255) NOT NULL,
+                telephone_pro VARCHAR(255) NULL,
+                biographie TEXT NULL,
+                cabinet_numero VARCHAR(255) NULL,
+                est_valide BOOLEAN DEFAULT 0,
+                created_at TIMESTAMP NULL,
+                updated_at TIMESTAMP NULL,
+                UNIQUE (matricule),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        ");
 
-        foreach ($columns as $col => $definition) {
-            if (!Schema::hasColumn('users', $col)) {
-                DB::statement("ALTER TABLE users ADD COLUMN $col $definition");
-            }
-        }
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Succès Manuel !</h1><p>Les colonnes pour l'inscription ont été injectées directement.</p>";
+        return "<h1>Table Medecins créée avec succès !</h1><p>Tes colonnes (matricule, specialite_id, est_valide) sont prêtes.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur :</h1><p>" . $e->getMessage() . "</p>";
+        return "<h1>Erreur SQL :</h1><p>" . $e->getMessage() . "</p>";
     }
 });
 
