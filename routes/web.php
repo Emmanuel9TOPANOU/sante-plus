@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
@@ -81,9 +82,17 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // Le "fresh" va supprimer les tables bloquantes et tout reconstruire
+        // Étape 1 : Désactiver la vérification des clés étrangères
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Étape 2 : Lancer le fresh migration
         Artisan::call('migrate:fresh', ['--force' => true]);
-        return "Migration FRESH réussie ! Tout a été réinitialisé : " . Artisan::output();
+        $output = Artisan::output();
+
+        // Étape 3 : Réactiver la vérification
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        return "Migration FRESH réussie avec succès !<br><pre>" . $output . "</pre>";
     } catch (\Exception $e) {
         return "Erreur lors de la migration : " . $e->getMessage();
     }
