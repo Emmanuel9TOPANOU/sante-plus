@@ -83,30 +83,30 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
+        // 1. Désactiver les contraintes pour tout raser
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // 1. On tente de vider la base pour repartir sur du propre
+        // 2. Supprimer TOUTES les tables sans exception
         $tables = DB::select('SHOW TABLES');
         $dbName = 'Tables_in_' . env('DB_DATABASE');
+
         foreach ($tables as $table) {
             Schema::dropIfExists($table->$dbName);
         }
+
+        // 3. Supprimer la table migrations (C'est elle qui bloque souvent !)
         Schema::dropIfExists('migrations');
 
-        // 2. On lance la migration. 
-        // Si elle plante sur 'age', on capture l'erreur et on continue
-        try {
-            Artisan::call('migrate', ['--force' => true]);
-            $msg = "Migrations terminées.";
-        } catch (\Exception $e) {
-            $msg = "Migration partiellement réussie (certains doublons ignorés) : " . $e->getMessage();
-        }
-
+        // 4. Relancer la migration de zéro
+        // Puisque ton fichier 'medical_info' est maintenant daté du 01/03, 
+        // il passera AVANT celui des prescriptions du 02/03.
+        Artisan::call('migrate', ['--force' => true]);
+        
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Résultat :</h1><p>$msg</p><p>Vérifie maintenant si ta table <b>users</b> contient la colonne <b>telephone</b>.</p>";
+        return "<h1>Base de données remise à neuf !</h1><p>Toutes les tables ont été recréées dans le nouvel ordre.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur fatale :</h1>" . $e->getMessage();
+        return "<h1>Erreur lors du nettoyage :</h1><p>" . $e->getMessage() . "</p>";
     }
 });
 
