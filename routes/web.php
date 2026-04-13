@@ -81,41 +81,37 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::patch('/settings/update', [AdminSettingController::class, 'update'])->name('settings.update');
 });
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
 Route::get('/force-migrate', function () {
     try {
-        // 1. On s'assure que 'users' est prêt
-        if (!Schema::hasColumn('users', 'telephone')) {
-            DB::statement("ALTER TABLE users ADD COLUMN telephone VARCHAR(255) NULL AFTER password");
-        }
-
-        // 2. On crée la table 'medecins' avec tes colonnes exactes
-        // On désactive les clés étrangères temporairement pour éviter les erreurs de dépendance
+        // Désactivation des clés étrangères pour forcer le passage
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        
-        DB::statement("DROP TABLE IF EXISTS medecins"); // On nettoie si une version ratée existe
-        
+
+        // On supprime la table si elle existe à moitié ou est mal configurée
+        DB::statement("DROP TABLE IF EXISTS availabilities");
+
+        // Création brute de la table avec tes colonnes exactes
         DB::statement("
-            CREATE TABLE medecins (
+            CREATE TABLE availabilities (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT UNSIGNED NOT NULL,
-                specialite_id BIGINT UNSIGNED NOT NULL,
-                matricule VARCHAR(255) NOT NULL,
-                telephone_pro VARCHAR(255) NULL,
-                biographie TEXT NULL,
-                cabinet_numero VARCHAR(255) NULL,
-                est_valide BOOLEAN DEFAULT 0,
+                date DATE NOT NULL,
+                start_time TIME NOT NULL,
+                end_time TIME NOT NULL,
+                is_booked BOOLEAN DEFAULT 0,
                 created_at TIMESTAMP NULL,
                 updated_at TIMESTAMP NULL,
-                UNIQUE (matricule),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Table Medecins créée avec succès !</h1><p>Tes colonnes (matricule, specialite_id, est_valide) sont prêtes.</p>";
+        return "<h1>Félicitations !</h1><p>La table <b>availabilities</b> a été créée avec succès sur Railway.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur SQL :</h1><p>" . $e->getMessage() . "</p>";
+        return "<h1>Erreur :</h1><p>" . $e->getMessage() . "</p>";
     }
 });
 
