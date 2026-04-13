@@ -81,8 +81,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::patch('/settings/update', [AdminSettingController::class, 'update'])->name('settings.update');
 });
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+
 
 Route::get('/force-migrate', function () {
     try {
