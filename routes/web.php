@@ -80,21 +80,23 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::patch('/settings/update', [AdminSettingController::class, 'update'])->name('settings.update');
 });
 
+
+
 Route::get('/force-migrate', function () {
     try {
-        // Étape 1 : Désactiver la vérification des clés étrangères
+        // 1. On dit à MySQL d'arrêter de vérifier les liens le temps de la création
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Étape 2 : Lancer le fresh migration
+        // 2. On lance la migration fraîche
         Artisan::call('migrate:fresh', ['--force' => true]);
         $output = Artisan::output();
 
-        // Étape 3 : Réactiver la vérification
+        // 3. On réactive la sécurité
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "Migration FRESH réussie avec succès !<br><pre>" . $output . "</pre>";
+        return "<h1>Migration FRESH réussie !</h1><pre>" . $output . "</pre>";
     } catch (\Exception $e) {
-        return "Erreur lors de la migration : " . $e->getMessage();
+        return "<h1>Erreur critique :</h1>" . $e->getMessage();
     }
 });
 
