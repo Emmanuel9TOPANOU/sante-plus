@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
@@ -84,22 +85,28 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 Route::get('/force-migrate', function () {
     try {
-        // 1. On dit à MySQL d'arrêter de vérifier les liens le temps de la création
+        // 1. Désactiver les contraintes au niveau global de la session
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // 2. On lance la migration fraîche
-        Artisan::call('migrate:fresh', ['--force' => true]);
-        $output = Artisan::output();
+        // 2. Récupérer toutes les tables et les supprimer une par une
+        $tables = DB::select('SHOW TABLES');
+        $dbName = 'Tables_in_' . env('DB_DATABASE');
+        
+        foreach ($tables as $table) {
+            Schema::dropIfExists($table->$dbName);
+        }
 
-        // 3. On réactive la sécurité
+        // 3. Maintenant que la base est vide, on lance la migration
+        Artisan::call('migrate', ['--force' => true]);
+        
+        // 4. Réactiver la sécurité
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return "<h1>Migration FRESH réussie !</h1><pre>" . $output . "</pre>";
+        return "<h1>Succès Total !</h1><p>La base Railway a été vidée et reconstruite proprement.</p>";
     } catch (\Exception $e) {
-        return "<h1>Erreur critique :</h1>" . $e->getMessage();
+        return "<h1>Erreur persistante :</h1>" . $e->getMessage();
     }
 });
-
 
 /* --- ESPACE MÉDECIN --- */
 Route::middleware(['auth', 'verified', 'role:medecin', 'check.medecin'])
