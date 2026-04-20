@@ -44,7 +44,7 @@
                 
                 <div class="relative">
                     <div class="relative bg-white/70 backdrop-blur-2xl p-7 md:p-9 rounded-[2.5rem] border border-white shadow-2xl shadow-slate-200/40">
-                        <form action="<?php echo e(route('admin.medecins.index')); ?>" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                        <form action="<?php echo e(route('admin.medecins.index')); ?>" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end admin-filter-form">
                             
                             <div class="md:col-span-5 space-y-3">
                                 <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Identification</label>
@@ -146,6 +146,30 @@
             </div>
         </div>
     </div>
+
+    <style>
+        /* Responsive grid for cards and tables */
+        @media (max-width: 1023px) {
+            .admin-responsive-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        @media (min-width: 1024px) {
+            .admin-responsive-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+        }
+        .admin-table-wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
+        @media (max-width: 767px) {
+            .admin-filter-form {
+                flex-direction: column !important;
+                gap: 1rem !important;
+            }
+        }
+    </style>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>

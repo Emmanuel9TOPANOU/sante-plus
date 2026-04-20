@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -78,6 +79,24 @@ class User extends Authenticatable
     { 
         return $this->hasMany(Availability::class, 'user_id'); 
     }
+
+   public function isSpecialist()
+{
+    // 1. On charge la relation 'specialite'
+    // On vérifie si l'utilisateur a une spécialité liée
+    if (!$this->specialite) {
+        return false;
+    }
+
+    // 2. On récupère le nom de la spécialité (ex: "Tromato" ou "Généraliste")
+    $nomSpecialite = $this->specialite->nom; // Vérifie si le champ s'appelle bien 'nom' dans ta table specialites
+
+    // 3. On transforme en version simplifiée pour comparer
+    $slug = Str::slug($nomSpecialite);
+
+    // 4. On retourne vrai si ce n'est PAS un généraliste
+    return !str_contains($slug, 'generaliste');
+}
 
     /* --- MESSAGERIE --- */
 

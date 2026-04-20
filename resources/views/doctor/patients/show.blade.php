@@ -13,12 +13,12 @@
                     </div>
                     <div>
                         <h1 class="text-2xl md:text-3xl font-black text-slate-900 italic tracking-tighter">{{ $patient->name }}</h1>
-                        <p class="text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-[0.1em] md:tracking-[0.2em] leading-relaxed">
-                            ID: #PAT-{{ $patient->id }} <span class="hidden sm:inline">•</span><br class="sm:hidden">
-                            {{ $patient->date_naissance ? \Carbon\Carbon::parse($patient->date_naissance)->age : '??' }} ans • 
-                            Sexe: <span class="text-slate-900">{{ $patient->sexe ?? 'N/A' }}</span> <span class="hidden sm:inline">•</span><br class="sm:hidden">
-                            Groupe: <span class="text-red-600 font-black">{{ $patient->groupe_sanguin ?? 'Inconnu' }}</span>
-                        </p>
+<p class="text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-[0.1em] md:tracking-[0.2em] leading-relaxed">
+    ID: #PAT-{{ $patient->id }} <span class="hidden sm:inline">•</span><br class="sm:hidden">
+    {{ $patient->age ? $patient->age . ' ans' : 'Âge Inconnu' }} • 
+    Sexe: <span class="text-slate-900">{{ $patient->sexe ?? 'Inconnu' }}</span> <span class="hidden sm:inline">•</span><br class="sm:hidden">
+    Groupe: <span class="text-red-600 font-black">{{ $patient->groupe_sanguin ?? 'Inconnu' }}</span>
+</p>
                     </div>
                 </div>
 

@@ -55,71 +55,77 @@
                                 <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50">
-                            <?php $__empty_1 = true; $__currentLoopData = $rendezvous; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rdv): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                                <tr class="hover:bg-blue-50/20 transition-all duration-200 group <?php echo e($rdv->statut === 'annule' ? 'opacity-60 bg-slate-50/30' : ''); ?>">
-                                    <td class="px-8 py-6">
-                                        <div class="flex items-center">
-                                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center text-blue-600 font-black mr-4 border border-blue-200 transition-transform group-hover:scale-110">
-                                                <?php echo e(strtoupper(substr($rdv->medecin->name, 0, 1))); ?>
 
-                                            </div>
-                                            <div>
-                                                <span class="block font-black text-slate-700 text-sm leading-tight group-hover:text-blue-600">Dr. <?php echo e($rdv->medecin->name); ?></span>
-                                                <span class="text-[9px] text-blue-400 font-black uppercase tracking-[0.1em] mt-1 block italic"><?php echo e($rdv->medecin->specialite->nom_specialite ?? 'Généraliste'); ?></span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-8 py-6 text-xs font-black text-slate-700 uppercase">
-                                        <?php echo e(\Carbon\Carbon::parse($rdv->date_rdv)->translatedFormat('d F Y')); ?>
+                       <tbody class="divide-y divide-slate-50">
+    <?php $__empty_1 = true; $__currentLoopData = $rendezvous; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rdv): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+        <tr class="hover:bg-blue-50/20 transition-all duration-200 group <?php echo e($rdv->statut === 'annule' ? 'opacity-60 bg-slate-50/30' : ''); ?>">
+            <td class="px-8 py-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center text-blue-600 font-black mr-4 border border-blue-200 transition-transform group-hover:scale-110">
+                        <?php echo e(strtoupper(substr($rdv->medecin->name, 0, 1))); ?>
 
-                                        <span class="block text-blue-500 mt-1 font-bold italic"><i class="fa-regular fa-clock mr-1"></i> <?php echo e(\Carbon\Carbon::parse($rdv->heure_rdv)->format('H\hi')); ?></span>
-                                    </td>
-                                    <td class="px-8 py-6 text-xs font-bold text-slate-400 italic">
-                                        <?php echo e(Str::limit($rdv->motif ?? 'Consultation de routine', 30)); ?>
+                    </div>
+                    <div>
+                        <span class="block font-black text-slate-700 text-sm leading-tight group-hover:text-blue-600">Dr. <?php echo e($rdv->medecin->name); ?></span>
+                        <span class="text-[9px] text-blue-400 font-black uppercase tracking-[0.1em] mt-1 block italic"><?php echo e($rdv->medecin->specialite->nom_specialite ?? 'Généraliste'); ?></span>
+                    </div>
+                </div>
+            </td>
+            <td class="px-8 py-6 text-xs font-black text-slate-700 uppercase">
+                <?php echo e(\Carbon\Carbon::parse($rdv->date_rdv)->translatedFormat('d F Y')); ?>
 
-                                    </td>
-                                    <td class="px-8 py-6">
-                                        <?php
-                                            $statusColors = [
-                                                'en_attente' => 'bg-amber-50 text-amber-600 border-amber-200',
-                                                'confirme' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
-                                                'annule' => 'bg-rose-50 text-rose-600 border-rose-200',
-                                                'termine' => 'bg-slate-100 text-slate-500 border-slate-200',
-                                            ][$rdv->statut] ?? 'bg-slate-50 text-slate-400';
-                                        ?>
-                                        <span class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border <?php echo e($statusColors); ?>">
-                                            <?php echo e(str_replace('_', ' ', $rdv->statut)); ?>
+                <span class="block text-blue-500 mt-1 font-bold italic"><i class="fa-regular fa-clock mr-1"></i> <?php echo e(\Carbon\Carbon::parse($rdv->heure_rdv)->format('H\hi')); ?></span>
+            </td>
+            <td class="px-8 py-6 text-xs font-bold text-slate-400 italic">
+                <?php echo e(Str::limit($rdv->motif ?? 'Consultation de routine', 30)); ?>
 
-                                        </span>
-                                    </td>
-                                    <td class="px-8 py-6 text-right">
-                                        <div class="flex justify-end gap-3">
-                                            <?php if($rdv->statut === 'en_attente' || $rdv->statut === 'confirme'): ?>
-                                                
-                                                <a href="<?php echo e(route('patient.rendezvous.edit', $rdv->id)); ?>" 
-                                                   class="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-blue-600 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-slate-200 hover:border-blue-500 shadow-sm">
-                                                    Modifier
-                                                </a>
+            </td>
+            <td class="px-8 py-6">
+                <?php
+                    // CORRECTION : Correspondance exacte avec les termes en base de données
+                    $statusColors = [
+                        'attente'  => 'bg-amber-50 text-amber-600 border-amber-200',
+                        'confirme' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                        'annule'   => 'bg-rose-50 text-rose-600 border-rose-200',
+                        'termine'  => 'bg-slate-100 text-slate-500 border-slate-200',
+                    ][$rdv->statut] ?? 'bg-slate-50 text-slate-400';
+                ?>
+                <span class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border <?php echo e($statusColors); ?>">
+                    
+                    <?php echo e($rdv->statut === 'attente' ? 'En attente' : str_replace('_', ' ', $rdv->statut)); ?>
 
-                                                
-                                                <a href="<?php echo e(route('patient.rendezvous.annulation_rapide', $rdv->id)); ?>" 
-                                                   onclick="return confirm('Voulez-vous vraiment annuler ce rendez-vous ?');"
-                                                   class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-rose-100 hover:border-rose-600 shadow-sm">
-                                                    Annuler
-                                                </a>
-                                            <?php else: ?>
-                                                <span class="text-[9px] text-slate-300 font-black uppercase italic tracking-widest flex items-center bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
-                                                    <i class="fa-solid fa-lock mr-2"></i> Archivé
-                                                </span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                                <tr><td colspan="5" class="px-10 py-32 text-center text-slate-300 font-black uppercase text-xs tracking-widest italic">Aucun rendez-vous trouvé</td></tr>
-                            <?php endif; ?>
-                        </tbody>
+                </span>
+            </td>
+            <td class="px-8 py-6 text-right">
+                <div class="flex justify-end gap-3">
+                    
+                    <?php if($rdv->statut === 'attente' || $rdv->statut === 'confirme'): ?>
+                        
+                        <a href="<?php echo e(route('patient.rendezvous.edit', $rdv->id)); ?>" 
+                           class="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-blue-600 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-slate-200 hover:border-blue-500 shadow-sm">
+                            Modifier
+                        </a>
+
+                        
+                        <a href="<?php echo e(route('patient.rendezvous.annulation_rapide', $rdv->id)); ?>" 
+                           onclick="return confirm('Voulez-vous vraiment annuler ce rendez-vous ?');"
+                           class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-rose-100 hover:border-rose-600 shadow-sm">
+                            Annuler
+                        </a>
+                    <?php else: ?>
+                        <span class="text-[9px] text-slate-300 font-black uppercase italic tracking-widest flex items-center bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                            <i class="fa-solid fa-lock mr-2"></i> Archivé
+                        </span>
+                    <?php endif; ?>
+                </div>
+            </td>
+        </tr>
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+        <tr><td colspan="5" class="px-10 py-32 text-center text-slate-300 font-black uppercase text-xs tracking-widest italic">Aucun rendez-vous trouvé</td></tr>
+    <?php endif; ?>
+</tbody>
+
+
                     </table>
                 </div>
 

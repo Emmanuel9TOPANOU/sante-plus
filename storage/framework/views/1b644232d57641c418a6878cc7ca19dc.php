@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Santé+ | Solution Digitale pour Cliniques d'Excellence</title>
 
+<link rel="icon" type="image/png" href="<?php echo e(asset('assets/images/logo.png')); ?>">
+
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -67,7 +69,7 @@
                     <a href="<?php echo e(url('/dashboard')); ?>" class="bg-slate-900 text-white px-5 lg:px-8 py-3 lg:py-4 rounded-xl lg:rounded-2xl text-[10px] lg:text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 transition">Espace Clinique</a>
                 <?php else: ?>
                     <a href="<?php echo e(route('login')); ?>" class="hidden sm:block text-slate-600 text-[11px] font-black uppercase tracking-widest hover:text-blue-600 transition">Connexion</a>
-                    <a href="<?php echo e(route('register')); ?>" class="bg-blue-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-xl lg:rounded-2xl text-[10px] lg:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition shadow-lg shadow-blue-200">Prendre RDV</a>
+                    <a href="<?php echo e(route('register')); ?>" class="bg-blue-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-xl lg:rounded-2xl text-[10px] lg:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition ">Prendre RDV</a>
                 <?php endif; ?>
             </div>
             
@@ -313,13 +315,7 @@
                     La première suite logicielle hospitalière 100% béninoise conçue pour l'excellence opérationnelle.
                 </p>
 
-                <div class="flex justify-center md:justify-start gap-4">
-                    <?php $__currentLoopData = ['instagram', 'linkedin-in', 'facebook-f']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $social): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <a href="#" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-blue-600 transition-all duration-300 group">
-                        <i class="fa-brands fa-<?php echo e($social); ?> text-sm group-hover:scale-110 transition-transform"></i>
-                    </a>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </div>
+              
             </div>
 
             
@@ -329,7 +325,6 @@
                     <li><a href="#hero" class="text-slate-400 hover:text-blue-500 transition-all text-sm font-medium">Accueil</a></li>
                     <li><a href="#mission" class="text-slate-400 hover:text-blue-500 transition-all text-sm font-medium">Notre Mission</a></li>
                     <li><a href="#features" class="text-slate-400 hover:text-blue-500 transition-all text-sm font-medium">Fonctionnalités</a></li>
-                    <li><a href="#" class="text-slate-400 hover:text-blue-500 transition-all text-sm font-medium">Support Technique</a></li>
                 </ul>
             </div>
 
@@ -343,7 +338,7 @@
                     </li>
                     <li class="flex items-center justify-center md:justify-start gap-4 text-slate-400">
                         <i class="fa-solid fa-envelope text-blue-500"></i>
-                        <span>contact@sante-plus.bj</span>
+                        <span>j703066@gmail.com</span>
                     </li>
                 </ul>
             </div>

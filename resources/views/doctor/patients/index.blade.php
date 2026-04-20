@@ -80,25 +80,32 @@
                             </span>
                         </div>
 
-                        {{-- Infos --}}
-                        <div class="mb-8 flex-grow">
-                            <h3 class="text-xl font-black text-slate-900 italic mb-1">{{ $patient->name }}</h3>
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                {{ $patient->patient?->sexe ?? 'N/D' }} • {{ \Carbon\Carbon::parse($patient->patient?->date_naissance)->age ?? '?' }} ans
-                            </p>
-                        </div>
+{{-- Infos --}}
+<div class="mb-8 flex-grow">
+    <h3 class="text-xl font-black text-slate-900 italic mb-1">{{ $patient->name }}</h3>
+   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+    {{-- On enlève le "patient?->" car les données sont déjà dans $patient --}}
+    {{ $patient->sexe ?? 'Sexe Inconnu' }} • 
+    {{ $patient->age ? $patient->age . ' ans' : 'Âge Inconnu' }}
+</p>
+</div>
 
-                        {{-- Tags techniques pour le filtrage (cachés mais utiles au DOM si besoin) --}}
-                        <div class="grid grid-cols-2 gap-4 mb-8">
-                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                                <p class="text-[9px] font-black text-slate-400 uppercase mb-1 text-center">Groupe</p>
-                                <p class="text-xs font-bold text-red-600 text-center">{{ $patient->patient?->groupe_sanguin ?? 'N/A' }}</p>
-                            </div>
-                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                                <p class="text-[9px] font-black text-slate-400 uppercase mb-1 text-center">Tél</p>
-                                <p class="text-[10px] font-bold text-slate-700 text-center truncate">{{ $patient->patient?->telephone ?? 'Aucun' }}</p>
-                            </div>
-                        </div>
+{{-- Tags techniques --}}
+<div class="grid grid-cols-2 gap-4 mb-8">
+    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+        <p class="text-[9px] font-black text-slate-400 uppercase mb-1 text-center">Groupe</p>
+        <p class="text-xs font-bold text-red-600 text-center">
+            {{ $patient->patient?->groupe_sanguin ?? 'Inconnu' }}
+        </p>
+    </div>
+    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+        <p class="text-[9px] font-black text-slate-400 uppercase mb-1 text-center">Tél</p>
+        <p class="text-[10px] font-bold text-slate-700 text-center truncate">
+            {{ $patient->patient?->telephone ?? 'Inconnu' }}
+        </p>
+    </div>
+</div>
+
 
                         <a href="{{ route('doctor.patients.show', $patient->id) }}" 
                            class="block w-full text-center bg-slate-900 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl group-hover:bg-blue-600 transition-all">

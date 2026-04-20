@@ -11,213 +11,199 @@
                 </a>
             </div>
 
-            <div class="bg-white rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-slate-100 overflow-hidden">
-                <div class="bg-gradient-to-br from-slate-900 to-blue-900 p-10 text-white relative overflow-hidden">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
-                    <div class="relative z-10">
-                        <h1 class="text-3xl font-black tracking-tight italic">Prendre <span class="text-blue-400 uppercase">Rendez-vous</span></h1>
-                        <p class="text-slate-300 mt-2 font-medium opacity-80">Planifiez votre consultation en quelques clics.</p>
-                    </div>
-                </div>
-
-                <form action="{{ route('patient.rendezvous.store') }}" method="POST" id="rdvForm" class="p-10 space-y-10">
-                    @csrf
-
-                    @if(session('error') || $errors->any())
-                        <div class="bg-rose-50 border-l-4 border-rose-500 p-5 rounded-2xl text-rose-700 text-xs font-bold space-y-1">
-                            @if(session('error')) <p>{{ session('error') }}</p> @endif
-                            @foreach ($errors->all() as $error) <p>{{ $error }}</p> @endforeach
-                        </div>
-                    @endif
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-4">
-                            <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">1</span>
-                                Spécialité
-                            </label>
-                            <select id="specialite_filter" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition shadow-sm cursor-pointer outline-none">
-                                <option value="">Toutes les spécialités</option>
-                                @foreach($specialites as $spe)
-                                    <option value="{{ $spe->id }}">{{ $spe->nom_specialite }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="space-y-4">
-                            <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">2</span>
-                                Praticien
-                            </label>
-                            <select name="medecin_id" id="medecin_id" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition shadow-sm cursor-pointer outline-none">
-                                <option value="" disabled selected>Choisir un médecin...</option>
-                                @foreach($medecins as $medecin)
-                                    {{-- Ajout de data-is-specialist pour le JS --}}
-                                    <option value="{{ $medecin->id }}" 
-                                            data-specialite="{{ $medecin->specialite_id }}"
-                                            data-is-specialist="{{ $medecin->specialite_id != 1 ? 'true' : 'false' }}"
-                                            data-user="{{ $medecin->user_id }}">
-                                        Dr. {{ $medecin->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-4">
-                            <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">3</span>
-                                Date du rendez-vous
-                            </label>
-                            <input type="date" name="date_rdv" id="date_rdv" min="{{ date('Y-m-d') }}" required
-                                class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition shadow-sm outline-none">
-                            
-                            {{-- Badge informatif pour les spécialistes --}}
-                            <div id="info_jours" class="hidden">
-                                <p class="text-[9px] font-black text-blue-600 uppercase italic mt-2 flex items-center gap-2">
-                                    <i class="fa-solid fa-circle-info"></i> Ce spécialiste ne consulte que 2 jours / semaine
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4">
-                            <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">4</span>
-                                Créneaux disponibles
-                            </label>
-                            <div id="heures_container" class="grid grid-cols-3 gap-2"></div>
-                            <input type="hidden" name="heure_rdv" id="heure_rdv_hidden" required>
-                            <div id="msg_select" class="text-[11px] text-slate-400 font-bold italic bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-center transition-all">
-                                Sélectionnez un médecin et une date.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Motif (Optionnel)</label>
-                        <textarea name="motif" rows="2" class="w-full bg-slate-50 border-none rounded-[1.5rem] px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition outline-none placeholder-slate-300" placeholder="Ex: Consultation de suivi..."></textarea>
-                    </div>
-
-                    <button type="submit" id="submitBtn" disabled class="w-full py-6 bg-slate-200 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-xs shadow-lg transition-all duration-500 flex items-center justify-center gap-3 cursor-not-allowed">
-                        <i class="fa-solid fa-calendar-check"></i>
-                        Confirmer le rendez-vous
-                    </button>
-                </form>
-            </div>
+         <div class="bg-white rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-slate-100 overflow-hidden">
+    <div class="bg-gradient-to-br from-slate-900 to-blue-900 p-10 text-white relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div class="relative z-10">
+            <h1 class="text-3xl font-black tracking-tight italic">Prendre <span class="text-blue-400 uppercase">Rendez-vous</span></h1>
+            <p class="text-slate-300 mt-2 font-medium opacity-80">Planifiez votre consultation en quelques clics.</p>
         </div>
     </div>
 
-    <script>
-        const specialiteSelect = document.getElementById('specialite_filter');
-        const medecinSelect = document.getElementById('medecin_id');
-        const dateInput = document.getElementById('date_rdv');
-        const infoJours = document.getElementById('info_jours');
-        const heuresContainer = document.getElementById('heures_container');
-        const heureHidden = document.getElementById('heure_rdv_hidden');
-        const msgSelect = document.getElementById('msg_select');
-        const submitBtn = document.getElementById('submitBtn');
+    <form action="{{ route('patient.rendezvous.store') }}" method="POST" id="rdvForm" class="p-10 space-y-10">
+        @csrf
 
-        const disponibilites = @json($disponibilites);
+        @if(session('error') || $errors->any())
+            <div class="bg-rose-50 border-l-4 border-rose-500 p-5 rounded-2xl text-rose-700 text-xs font-bold space-y-1">
+                @if(session('error')) <p>{{ session('error') }}</p> @endif
+                @foreach ($errors->all() as $error) <p>{{ $error }}</p> @endforeach
+            </div>
+        @endif
 
-        // 1. Filtrage par spécialité
-        specialiteSelect.addEventListener('change', function() {
-            const speId = this.value; 
-            medecinSelect.value = ""; 
-            resetHeures();
-            infoJours.classList.add('hidden');
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">1</span>
+                    Spécialité
+                </label>
+                <select id="specialite_filter" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition shadow-sm cursor-pointer outline-none">
+                    <option value="">Toutes les spécialités</option>
+                    @foreach($specialites as $spe)
+                        <option value="{{ $spe->id }}">{{ $spe->nom_specialite }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-            Array.from(medecinSelect.options).forEach(opt => {
-                if (opt.value === "") return;
-                const isMatch = speId === "" || opt.dataset.specialite === speId;
-                opt.style.display = isMatch ? "block" : "none";
-                opt.disabled = !isMatch;
+            <div class="space-y-4">
+                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">2</span>
+                    Praticien
+                </label>
+                <select name="medecin_id" id="medecin_id" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition shadow-sm cursor-pointer outline-none">
+                    <option value="" disabled selected>Choisir un médecin...</option>
+                    @foreach($medecins as $medecin)
+                        <option value="{{ $medecin->id }}" 
+                                data-specialite="{{ $medecin->specialite_id }}"
+                                data-is-specialist="{{ $medecin->specialite_id != 1 ? 'true' : 'false' }}"
+                                data-user="{{ $medecin->user_id }}">
+                            Dr. {{ $medecin->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">3</span>
+                    Dates disponibles
+                </label>
+                <div id="dates_container" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2">
+                    </div>
+                <input type="hidden" name="date_rdv" id="date_rdv_hidden" required>
+            </div>
+
+            <div class="space-y-4">
+                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">4</span>
+                    Créneaux disponibles
+                </label>
+                <div id="heures_container" class="grid grid-cols-3 gap-2">
+                    </div>
+                <input type="hidden" name="heure_rdv" id="heure_rdv_hidden" required>
+                
+                <div id="msg_select" class="text-[11px] text-slate-400 font-bold italic bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-center transition-all">
+                    Sélectionnez un médecin pour voir ses disponibilités.
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Motif (Optionnel)</label>
+            <textarea name="motif" rows="2" class="w-full bg-slate-50 border-none rounded-[1.5rem] px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition outline-none placeholder-slate-300" placeholder="Ex: Consultation de suivi..."></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn" disabled class="w-full py-6 bg-slate-200 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-xs shadow-lg transition-all duration-500 flex items-center justify-center gap-3 cursor-not-allowed">
+            <i class="fa-solid fa-calendar-check"></i>
+            Confirmer le rendez-vous
+        </button>
+    </form>
+</div>
+
+<script>
+    const specialiteSelect = document.getElementById('specialite_filter');
+    const medecinSelect = document.getElementById('medecin_id');
+    const datesContainer = document.getElementById('dates_container');
+    const dateHidden = document.getElementById('date_rdv_hidden');
+    const heuresContainer = document.getElementById('heures_container');
+    const heureHidden = document.getElementById('heure_rdv_hidden');
+    const msgSelect = document.getElementById('msg_select');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const disponibilites = @json($disponibilites);
+
+    // 1. Filtre Spécialité -> Médecins
+    specialiteSelect.addEventListener('change', function() {
+        const speId = this.value; 
+        medecinSelect.value = ""; 
+        resetAll();
+
+        Array.from(medecinSelect.options).forEach(opt => {
+            if (opt.value === "") return;
+            const isMatch = speId === "" || opt.dataset.specialite === speId;
+            opt.style.display = isMatch ? "block" : "none";
+            opt.disabled = !isMatch;
+        });
+    });
+
+    // 2. Sélection Médecin -> Affichage immédiat des Dates
+    medecinSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const userId = selectedOption.dataset.user;
+        
+        resetAll();
+
+        if (disponibilites[userId] && Object.keys(disponibilites[userId]).length > 0) {
+            msgSelect.classList.add('hidden');
+            
+            Object.keys(disponibilites[userId]).forEach(dateStr => {
+                const btnDate = document.createElement('button');
+                btnDate.type = "button";
+                
+                const d = new Date(dateStr);
+                btnDate.innerText = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                btnDate.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 shadow-sm transition-all hover:border-blue-400";
+                
+                btnDate.onclick = function() {
+                    datesContainer.querySelectorAll('button').forEach(b => b.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 shadow-sm transition-all");
+                    this.className = "py-3 bg-slate-900 text-white rounded-xl text-[11px] font-black shadow-lg scale-105 transition-all";
+                    
+                    dateHidden.value = dateStr;
+                    showHeures(userId, dateStr);
+                };
+                datesContainer.appendChild(btnDate);
             });
-        });
-
-        // 2. Gestion du changement de médecin
-        medecinSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const isSpecialist = selectedOption.dataset.isSpecialist === "true";
-            
-            // Afficher ou cacher l'info sur les jours
-            if(isSpecialist) {
-                infoJours.classList.remove('hidden');
-            } else {
-                infoJours.classList.add('hidden');
-            }
-            
-            dateInput.value = ""; // Reset date pour forcer un nouveau choix cohérent
-            updateHeures();
-        });
-
-        // 3. Mise à jour des créneaux
-        dateInput.addEventListener('change', updateHeures);
-
-        function updateHeures() {
-            const selectedOption = medecinSelect.options[medecinSelect.selectedIndex];
-            if (!selectedOption || !dateInput.value) {
-                resetHeures();
-                return;
-            }
-
-            const userId = selectedOption.dataset.user;
-            const dateStr = dateInput.value;
-            
-            heuresContainer.innerHTML = "";
-            heureHidden.value = "";
-            disableSubmit();
-
-            if (disponibilites[userId] && disponibilites[userId][dateStr]) {
-                const slots = disponibilites[userId][dateStr];
-                if (slots.length > 0) {
-                    msgSelect.classList.add('hidden');
-                    slots.forEach(heure => {
-                        const btn = document.createElement('button');
-                        btn.type = "button";
-                        btn.innerText = heure.substring(0, 5);
-                        btn.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm";
-                        
-                        btn.onclick = function() {
-                            heuresContainer.querySelectorAll('button').forEach(b => {
-                                b.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 transition-all shadow-sm";
-                            });
-                            this.className = "py-3 bg-blue-600 border border-blue-600 rounded-xl text-[11px] font-black text-white shadow-lg shadow-blue-200 scale-105 transition-all";
-                            heureHidden.value = heure;
-                            enableSubmit();
-                        };
-                        heuresContainer.appendChild(btn);
-                    });
-                    return;
-                }
-            }
-            
-            msgSelect.classList.remove('hidden');
-            msgSelect.innerText = "Aucun créneau disponible. (Les spécialistes ne consultent que certains jours).";
+        } else {
+            msgSelect.innerText = "Aucune date disponible pour ce praticien.";
             msgSelect.className = "text-[11px] font-bold italic p-4 rounded-2xl border border-rose-100 bg-rose-50 text-rose-500 text-center";
         }
+    });
 
-        function resetHeures() {
-            heuresContainer.innerHTML = "";
-            heureHidden.value = "";
-            disableSubmit();
-            msgSelect.classList.remove('hidden');
-            msgSelect.className = "text-[11px] text-slate-400 font-bold italic bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-center";
-            msgSelect.innerText = "Sélectionnez un médecin et une date.";
-        }
+    function showHeures(userId, dateStr) {
+        heuresContainer.innerHTML = "";
+        heureHidden.value = "";
+        disableSubmit();
 
-        function enableSubmit() {
-            submitBtn.disabled = false;
-            submitBtn.classList.replace('bg-slate-200', 'bg-slate-900');
-            submitBtn.classList.replace('cursor-not-allowed', 'cursor-pointer');
-            submitBtn.classList.add('hover:bg-blue-600', 'hover:-translate-y-1');
-        }
+        const slots = disponibilites[userId][dateStr];
+        slots.forEach(heure => {
+            const btn = document.createElement('button');
+            btn.type = "button";
+            btn.innerText = heure.substring(0, 5);
+            btn.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 hover:border-blue-500 transition-all";
+            
+            btn.onclick = function() {
+                heuresContainer.querySelectorAll('button').forEach(b => b.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 transition-all");
+                this.className = "py-3 bg-blue-600 text-white rounded-xl text-[11px] font-black shadow-lg scale-105 transition-all";
+                
+                heureHidden.value = heure;
+                enableSubmit();
+            };
+            heuresContainer.appendChild(btn);
+        });
+    }
 
-        function disableSubmit() {
-            submitBtn.disabled = true;
-            submitBtn.classList.replace('bg-slate-900', 'bg-slate-200');
-            submitBtn.classList.replace('cursor-pointer', 'cursor-not-allowed');
-            submitBtn.classList.remove('hover:bg-blue-600', 'hover:-translate-y-1');
-        }
-    </script>
+    function resetAll() {
+        datesContainer.innerHTML = "";
+        heuresContainer.innerHTML = "";
+        dateHidden.value = "";
+        heureHidden.value = "";
+        disableSubmit();
+        msgSelect.classList.remove('hidden');
+        msgSelect.className = "text-[11px] text-slate-400 font-bold italic bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-center";
+        msgSelect.innerText = "Sélectionnez un médecin pour voir ses disponibilités.";
+    }
+
+    function enableSubmit() {
+        submitBtn.disabled = false;
+        submitBtn.classList.replace('bg-slate-200', 'bg-slate-900');
+        submitBtn.classList.replace('cursor-not-allowed', 'cursor-pointer');
+    }
+
+    function disableSubmit() {
+        submitBtn.disabled = true;
+        submitBtn.classList.replace('bg-slate-900', 'bg-slate-200');
+        submitBtn.classList.replace('cursor-pointer', 'cursor-not-allowed');
+    }
+</script>
 </x-app-layout>

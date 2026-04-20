@@ -107,15 +107,18 @@
     </nav>
 
     
-    <div class="p-6 mb-16 mt-auto border-t border-blue-50 bg-white">
+     <div class="p-6  mt-auto border-t border-blue-100 bg-gradient-to-r from-blue-50 to-white mb-16">
         <?php if(auth()->guard()->check()): ?>
             <form method="POST" action="<?php echo e(route('logout')); ?>">
                 <?php echo csrf_field(); ?>
-                <button type="submit" class="group w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white bg-gradient-to-r from-red-600 to-red-400 shadow-lg border-none hover:from-red-700 transition-all duration-300 font-black uppercase text-[11px] tracking-widest cursor-pointer">
+                <button type="submit"
+                    class="group w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white bg-gradient-to-r from-red-600 to-red-400 shadow-lg border-none hover:from-red-700 hover:to-red-500 transition-all duration-300 font-black uppercase text-[12px] tracking-[0.15em] cursor-pointer">
+                    
                     <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
-                    Déconnexion
+                    <?php echo e(__('Déconnexion')); ?>
+
                 </button>
             </form>
         <?php endif; ?>

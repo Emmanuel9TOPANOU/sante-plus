@@ -158,32 +158,38 @@ Route::middleware(['auth', 'verified', 'role:patient'])
     ->name('patient.')
     ->group(function () {
         Route::get('/dashboard', [PatientDashboard::class, 'index'])->name('dashboard');
+        
+        // --- ROUTES RENDEZ-VOUS ---
+        // On définit la route d'annulation AVANT le resource pour éviter les conflits
+        Route::get('/rendezvous/{id}/annulation-rapide', [PatientRendezvous::class, 'annulationRapide'])
+            ->name('rendezvous.annulation_rapide');
+            
         Route::resource('rendezvous', PatientRendezvous::class);
 
         Route::get('/mon-dossier', [PatientMedicalRecord::class, 'index'])->name('medical_record.index');
-        
+        Route::get('/historique', [PatientDashboard::class, 'history'])->name('history.index');
+
         // Ordonnances
         Route::prefix('ordonnances')->name('prescriptions.')->group(function () {
             Route::get('/', [PatientMedicalRecord::class, 'history'])->name('index'); 
             Route::get('/download/{id}', [PatientPrescriptionCtrl::class, 'download'])->name('download');
         });
 
-        // Juste après le dashboard par exemple
-Route::get('/historique', [PatientDashboard::class, 'history'])->name('history.index');
-
-        // ANALYSES POUR LE PATIENT (C'est ici qu'on règle la 403)
+        // Analyses
         Route::prefix('analyses')->name('lab_results.')->group(function () {
             Route::get('/', [PatientLabResult::class, 'index'])->name('index');
-            // Route corrigée pour le téléchargement patient
             Route::get('/download/{id}', [PatientLabResult::class, 'download'])->name('download');
         });
 
+        // Messages
         Route::prefix('messages')->name('messages.')->group(function() {
             Route::get('/', [PatientMessageController::class, 'index'])->name('index');
             Route::get('/chat/{doctor}', [PatientMessageController::class, 'show'])->name('show');
             Route::post('/store', [PatientMessageController::class, 'store'])->name('store');
         });
 });
+
+
 
 /* --- PARAMÈTRES COMMUNS --- */
 Route::middleware(['auth'])->group(function () {

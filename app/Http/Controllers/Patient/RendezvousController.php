@@ -73,43 +73,30 @@ class RendezvousController extends Controller
     /**
      * Enregistrement d'un nouveau rendez-vous
      */
-   public function store(Request $request): RedirectResponse
+public function store(Request $request): RedirectResponse
 {
     $request->validate([
-        'medecin_id' => 'required|exists:medecins,id',
+        'medecin_id' => 'required|exists:medecins,id', // On reçoit l'ID du profil
         'date_rdv'   => 'required|date|after_or_equal:today',
         'heure_rdv'  => 'required',
-        'motif'      => 'nullable|string|max:255',
+        'motif'      => 'nullable|string|max:500',
     ]);
 
-    try {
-        // 1. Récupérer les infos du médecin (pour avoir son user_id)
-        $medecinTable = \DB::table('medecins')->where('id', $request->medecin_id)->first();
+    // TROUVER LE USER_ID associé au profil médecin
+    $medecinProfil = \App\Models\Medecin::findOrFail($request->medecin_id);
 
-        // 2. Insertion avec le BON ID (celui de l'utilisateur médecin)
-        \App\Models\Rendezvous::create([
-            'patient_id' => \Auth::id(),
-            // CRUCIAL : On utilise l'ID de l'utilisateur, pas l'ID de la table medecins
-            'medecin_id' => $medecinTable->user_id, 
-            'cree_par'   => \Auth::id(),
-            'date_rdv'   => $request->date_rdv,
-            'heure_rdv'  => $request->heure_rdv,
-            'motif'      => $request->motif,
-            'statut'     => 'en_attente',
-        ]);
+    $rendezvous = Rendezvous::create([
+        'patient_id' => Auth::id(),
+        'medecin_id' => $medecinProfil->user_id, // <--- CORRECTION : On enregistre le user_id
+        'cree_par'   => Auth::id(),
+        'date_rdv'   => $request->date_rdv,
+        'heure_rdv'  => $request->heure_rdv,
+        'statut'     => 'attente',
+        'motif'      => $request->motif,
+    ]);
 
-        // 3. Marquer le créneau comme réservé
-        \App\Models\Availability::where('user_id', $medecinTable->user_id)
-            ->where('date', $request->date_rdv)
-            ->where('start_time', 'LIKE', $request->heure_rdv . '%')
-            ->update(['is_booked' => true]);
-
-        return redirect()->route('patient.rendezvous.index')
-            ->with('success', 'Votre rendez-vous a été enregistré avec succès.');
-
-    } catch (\Exception $e) {
-        dd("Erreur lors de l'enregistrement : " . $e->getMessage());
-    }
+    return redirect()->route('patient.rendezvous.index')
+        ->with('success', 'Votre rendez-vous a été enregistré avec succès.');
 }
 
     /**
@@ -215,26 +202,52 @@ class RendezvousController extends Controller
     /**
      * Annulation rapide (Page succès premium)
      */
-    public function annulationRapide($id): View
-    {
-        $rendezvous = Auth::user()->rendezvous()->with('medecin')->findOrFail($id);
-        
-        $dateStr = ($rendezvous->date_rdv instanceof Carbon) ? $rendezvous->date_rdv->format('Y-m-d') : $rendezvous->date_rdv;
-        $dateTimeRdv = Carbon::parse($dateStr . ' ' . $rendezvous->heure_rdv);
-        
-        if ($rendezvous->statut === 'annule') {
-            return view('patient.rendezvous.annulation_succes', ['rendezvous' => $rendezvous, 'info' => 'Déjà annulé.']);
-        }
+  /**
+ * Annulation rapide (Page succès premium)
+ */
 
-        if ($dateTimeRdv->isPast()) {
-            return view('patient.rendezvous.annulation_success', ['rendezvous' => $rendezvous, 'error_msg' => 'Date passée.']);
-        }
 
-        $this->libererCreneau($rendezvous);
-        $rendezvous->update(['statut' => 'annule']);
 
-        return view('patient.rendezvous.annulation_succes', compact('rendezvous'));
+/**
+ * Annulation rapide avec diagnostic (DD)
+ */
+
+/**
+ * Annulation rapide (Version finale nettoyée)
+ */
+public function annulationRapide($id): View
+{
+    // 1. On récupère le RDV appartenant au patient connecté
+    $rendezvous = Auth::user()->rendezvous()->with('medecin')->findOrFail($id);
+    
+    $dateStr = ($rendezvous->date_rdv instanceof Carbon) ? $rendezvous->date_rdv->format('Y-m-d') : $rendezvous->date_rdv;
+    $dateTimeRdv = Carbon::parse($dateStr . ' ' . $rendezvous->heure_rdv);
+    
+    // Vérification si déjà annulé
+    if ($rendezvous->statut === 'annule') {
+        return view('patient.rendezvous.annulation_succes', ['rendezvous' => $rendezvous, 'info' => 'Ce rendez-vous est déjà annulé.']);
     }
+
+    // 2. Libération du créneau
+    try {
+        $this->libererCreneau($rendezvous);
+    } catch (\Exception $e) {
+        // On continue pour ne pas bloquer l'expérience utilisateur
+    }
+
+    // 3. Mise à jour du statut en base de données
+    // Utilisation de DB::table pour garantir l'écriture immédiate
+    \Illuminate\Support\Facades\DB::table('rendezvous')
+        ->where('id', $id)
+        ->update(['statut' => 'annule']);
+
+    // 4. Rafraîchissement de l'objet pour que la vue affiche les bonnes infos
+    $rendezvous->refresh();
+
+    return view('patient.rendezvous.annulation_succes', compact('rendezvous'));
+}
+
+
 
     /**
      * Libération du créneau

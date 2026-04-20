@@ -38,51 +38,67 @@
                                 
                                 
                                 
-                                <?php if(Auth::user()->specialty && strtolower(Auth::user()->specialty) !== 'généraliste'): ?>
-                                    <div class="space-y-3">
-                                        <label class="text-[10px] font-black uppercase text-gray-400 ml-2 italic">Jours de consultation</label>
-                                        <div class="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-4 gap-2">
-                                            <?php
-                                                $jours = [
-                                                    1 => 'Lun', 2 => 'Mar', 3 => 'Mer', 
-                                                    4 => 'Jeu', 5 => 'Ven', 6 => 'Sam', 0 => 'Dim'
-                                                ];
-                                            ?>
-                                            <?php $__currentLoopData = $jours; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $nom): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                <label class="cursor-pointer group">
-                                                    <input type="checkbox" name="days[]" value="<?php echo e($val); ?>" class="hidden peer" <?php echo e(in_array($val, [1,2,3,4,5]) ? 'checked' : ''); ?>>
-                                                    <div class="py-3 text-center rounded-xl bg-gray-50 text-[10px] font-black uppercase transition-all border border-transparent peer-checked:bg-blue-600 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-blue-200 group-hover:border-blue-200">
-                                                        <?php echo e($nom); ?>
+                            
 
-                                                    </div>
-                                                </label>
-                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    
-                                    <input type="hidden" name="days[]" value="1">
-                                    <input type="hidden" name="days[]" value="2">
-                                    <input type="hidden" name="days[]" value="3">
-                                    <input type="hidden" name="days[]" value="4">
-                                    <input type="hidden" name="days[]" value="5">
-                                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                                        <p class="text-[10px] font-bold text-blue-600 uppercase italic">Information</p>
-                                        <p class="text-[11px] text-blue-800">En tant que médecin généraliste, votre planning est généré du lundi au vendredi.</p>
-                                    </div>
-                                <?php endif; ?>
+
+
+              
+<?php if(Auth::user()->isSpecialist()): ?>
+    <div class="space-y-3">
+        <label class="text-[10px] font-black uppercase text-blue-600 ml-2 italic">Vos jours de présence hebdomadaire</label>
+        <div class="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-4 gap-2">
+            <?php
+                $jours = [1 => 'Lun', 2 => 'Mar', 3 => 'Mer', 4 => 'Jeu', 5 => 'Ven', 6 => 'Sam', 0 => 'Dim'];
+            ?>
+            <?php $__currentLoopData = $jours; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $nom): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <label class="cursor-pointer group">
+                    <input type="checkbox" name="days[]" value="<?php echo e($val); ?>" class="hidden peer" <?php echo e(in_array($val, [1,2,3,4,5]) ? 'checked' : ''); ?>>
+                    <div class="py-3 text-center rounded-xl bg-gray-50 text-[10px] font-black uppercase transition-all border border-transparent peer-checked:bg-blue-600 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-blue-200 group-hover:border-blue-200">
+                        <?php echo e($nom); ?>
+
+                    </div>
+                </label>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </div>
+        <p class="text-[9px] text-gray-400 italic ml-2">Le système créera vos créneaux pour ces jours sur toute la période choisie.</p>
+    </div>
+<?php else: ?>
+                    
+                    <input type="hidden" name="days[]" value="1">
+                    <input type="hidden" name="days[]" value="2">
+                    <input type="hidden" name="days[]" value="3">
+                    <input type="hidden" name="days[]" value="4">
+                    <input type="hidden" name="days[]" value="5">
+                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                        <p class="text-[10px] font-bold text-blue-600 uppercase italic">Information</p>
+                        <p class="text-[11px] text-blue-800">En tant que médecin généraliste, votre planning est généré du lundi au vendredi.</p>
+                    </div>
+                <?php endif; ?>
 
                                 
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="text-[10px] font-black uppercase text-gray-400 ml-2 italic">Du</label>
-                                        <input type="date" name="start_date" value="<?php echo e(date('Y-m-d')); ?>" min="<?php echo e(date('Y-m-d')); ?>" required class="w-full border-none bg-gray-50 rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-blue-600 transition outline-none">
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="text-[10px] font-black uppercase text-gray-400 ml-2 italic">Au</label>
-                                        <input type="date" name="end_date" value="<?php echo e(date('Y-m-d', strtotime('+1 month'))); ?>" min="<?php echo e(date('Y-m-d')); ?>" required class="w-full border-none bg-gray-50 rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-blue-600 transition outline-none">
-                                    </div>
-                                </div>
+                           
+<div class="grid grid-cols-2 gap-4">
+    <div class="space-y-2">
+        <label class="text-[10px] font-black uppercase text-blue-600 ml-2 italic">
+            <?php if(Auth::user()->isSpecialist()): ?> 1. Appliquer du <?php else: ?> Du <?php endif; ?>
+        </label>
+        <input type="date" name="start_date" 
+               value="<?php echo e(date('Y-m-d')); ?>" 
+               min="<?php echo e(date('Y-m-d')); ?>" 
+               required 
+               class="w-full border-none bg-gray-50 rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-blue-600 transition outline-none">
+    </div>
+    <div class="space-y-2">
+        <label class="text-[10px] font-black uppercase text-blue-600 ml-2 italic">
+            <?php if(Auth::user()->isSpecialist()): ?> Au <?php else: ?> Au <?php endif; ?>
+        </label>
+        <input type="date" name="end_date" 
+               value="<?php echo e(date('Y-m-d', strtotime('+1 month'))); ?>" 
+               min="<?php echo e(date('Y-m-d')); ?>" 
+               required 
+               class="w-full border-none bg-gray-50 rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-blue-600 transition outline-none">
+    </div>
+</div>
 
                                 
                                 <div class="grid grid-cols-2 gap-4">
@@ -102,7 +118,6 @@
                                         <option value="15">15 minutes</option>
                                         <option value="30" selected>30 minutes</option>
                                         <option value="45">45 minutes</option>
-                                        <option value="60">1 heure</option>
                                     </select>
                                 </div>
 
@@ -184,15 +199,22 @@
         </main>
     </div>
 
-    <script>
-        document.getElementById('generateForm').addEventListener('submit', function(e) {
+  <script>
+    document.getElementById('generateForm').addEventListener('submit', function(e) {
+        // On récupère le rôle ou la spécialité (via une classe ou un test sur l'existence des cases)
+        const daysContainer = document.querySelector('.grid-cols-4'); 
+        
+        // Si le conteneur des jours existe (donc si c'est un spécialiste)
+        if (daysContainer) {
             const checkboxes = document.querySelectorAll('input[name="days[]"]:checked');
             if (checkboxes.length === 0) {
                 e.preventDefault();
                 alert('Veuillez sélectionner au moins un jour de la semaine.');
             }
-        });
-    </script>
+        }
+        // Si daysContainer n'existe pas, c'est un généraliste : on laisse passer le formulaire
+    });
+</script>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>

@@ -9,6 +9,9 @@
 
         <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 
+        <link rel="icon" type="image/png" href="{{ asset('assets/images/logo.png') }}">
+
+
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
     body { font-family: 'Montserrat', sans-serif !important; }

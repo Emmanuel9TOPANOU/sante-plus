@@ -21,15 +21,18 @@ class DashboardController extends Controller
         // On récupère l'utilisateur avec son profil médecin et sa spécialité liée
         $user = Auth::user()->load(['medecin.specialite']);
 
-        // 1. Rendez-vous du jour (Filtre strict sur le médecin connecté)
+        // 1. Rendez-vous du jour
+        // CORRECTION : On ajoute le filtre statut != 'annule' pour qu'ils disparaissent du dashboard
         $rendezvous = Rendezvous::where('medecin_id', $user->id)
             ->whereDate('date_rdv', Carbon::today())
+            ->where('statut', '!=', 'annule') 
             ->with('patient') 
             ->orderBy('heure_rdv', 'asc')
             ->get();
 
-        // 2. Nombre total de patients uniques
+        // 2. Nombre total de patients uniques (uniquement ceux qui n'ont pas tout annulé)
         $totalPatients = Rendezvous::where('medecin_id', $user->id)
+            ->where('statut', '!=', 'annule')
             ->distinct('patient_id')
             ->count('patient_id');
 
@@ -75,7 +78,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Annuler un rendez-vous
+     * Annuler un rendez-vous (Action depuis le dashboard médecin)
      */
     public function annulerRDV(Rendezvous $rendezvous)
     {
@@ -85,6 +88,7 @@ class DashboardController extends Controller
 
         $rendezvous->update(['statut' => 'annule']);
 
+        // Le rendez-vous disparaîtra automatiquement au prochain rechargement grâce au filtre dans index()
         return back()->with('warning', 'Le rendez-vous a été annulé.');
     }
 
