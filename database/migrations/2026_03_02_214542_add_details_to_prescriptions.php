@@ -9,19 +9,28 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
- public function up(): void
-{
-    Schema::table('prescriptions', function (Blueprint $table) {
-        // On ajoute les colonnes manquantes
-        $table->integer('age')->nullable()->after('patient_id');
-        $table->decimal('poids', 5, 2)->nullable()->after('age');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('prescriptions', function (Blueprint $table) {
+            // Vérification pour la colonne 'age'
+            if (!Schema::hasColumn('prescriptions', 'age')) {
+                $table->integer('age')->nullable()->after('patient_id');
+            }
 
-public function down(): void
-{
-    Schema::table('prescriptions', function (Blueprint $table) {
-        $table->dropColumn(['age', 'poids']);
-    });
-}
+            // Vérification pour la colonne 'poids'
+            if (!Schema::hasColumn('prescriptions', 'poids')) {
+                $table->decimal('poids', 5, 2)->nullable()->after('age');
+            }
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('prescriptions', function (Blueprint $table) {
+            $table->dropColumn(['age', 'poids']);
+        });
+    }
 };
