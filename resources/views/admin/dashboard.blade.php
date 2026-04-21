@@ -123,7 +123,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div class="text-left">
                         <h1 class="text-2xl md:text-4xl font-black text-blue-700 leading-tight">
-                            Dashboard <span class="text-blue-500">Admin</span>
+                            Espace <span class="text-blue-500">Admin</span>
                         </h1>
                         <p class="text-gray-500 mt-1 font-medium text-xs md:text-base">Gestion globale de la plateforme Santé +</p>
                     </div>
