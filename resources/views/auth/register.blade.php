@@ -101,13 +101,29 @@
 
                     {{-- Champs Patient --}}
                     <div x-show="role === 'patient'" x-transition class="grid grid-cols-2 gap-3">
-                        <div class="relative group">
-                            <label class="field-label">Sexe</label>
-                            <select name="sexe" class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white focus:border-blue-500/50 outline-none appearance-none">
-                                <option value="M">Masculin</option>
-                                <option value="F">Féminin</option>
-                            </select>
-                        </div>
+                      <div class="space-y-2">
+    {{-- Label avec style professionnel --}}
+    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+        Genre / Sexe
+    </label>
+
+    <div class="relative group">
+        {{-- Icône décorative pour le côté médical/pro --}}
+        <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400 transition-colors">
+            <i class="fa-solid fa-venus-mars"></i>
+        </div>
+
+        {{-- Le Select --}}
+        <select name="sexe" 
+                class="w-full pl-12 pr-10 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl text-sm text-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none appearance-none transition-all cursor-pointer">
+            <option value="" disabled selected class="bg-slate-900">Choisir le genre</option>
+            <option value="M" class="bg-slate-900">Masculin</option>
+            <option value="F" class="bg-slate-900">Féminin</option>
+        </select>
+
+      
+    </div>
+</div>
                         <div class="relative group">
                             <label class="field-label">Date de naissance</label>
                             <input type="date" name="date_naissance" class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-[10px] text-white focus:border-blue-500/50 outline-none">
