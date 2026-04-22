@@ -52,4 +52,23 @@ class DashboardController extends Controller
             'stats'
         ));
     }
+
+
+    public function history()
+{
+    $user = Auth::user();
+    
+    // 1. On définit $infosSante (qui est l'utilisateur lui-même pour ses allergies/antécédents)
+    $infosSante = $user; 
+
+    // 2. On récupère les rendez-vous passés (l'historique) avec la pagination
+    // On utilise le nom $historique car c'est ce que ta vue utilise dans son @forelse
+    $historique = $user->rendezvous()
+        ->with(['medecin.specialite', 'consultation.analyses'])
+        ->where('statut', 'termine')
+        ->latest('date_rdv')
+        ->paginate(10); // Importante pour la ligne {{ $historique->links() }} de ta vue
+
+    return view('patient.history.index', compact('historique', 'infosSante'));
+}
 }

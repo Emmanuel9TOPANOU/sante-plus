@@ -80,22 +80,25 @@ class User extends Authenticatable
         return $this->hasMany(Availability::class, 'user_id'); 
     }
 
-   public function isSpecialist()
+public function isSpecialist()
 {
-    // 1. On charge la relation 'specialite'
-    // On vérifie si l'utilisateur a une spécialité liée
+    // 1. On vérifie si l'utilisateur a une spécialité liée via la relation
     if (!$this->specialite) {
         return false;
     }
 
-    // 2. On récupère le nom de la spécialité (ex: "Tromato" ou "Généraliste")
-    $nomSpecialite = $this->specialite->nom; // Vérifie si le champ s'appelle bien 'nom' dans ta table specialites
+    // 2. On utilise le nom exact de la colonne : 'nom_specialite'
+    $nomSpecialite = $this->specialite->nom_specialite; 
 
-    // 3. On transforme en version simplifiée pour comparer
+    // 3. On transforme en version simplifiée (ex: "medecine-generale")
     $slug = Str::slug($nomSpecialite);
 
-    // 4. On retourne vrai si ce n'est PAS un généraliste
-    return !str_contains($slug, 'generaliste');
+    // 4. On vérifie si c'est un profil généraliste
+    // On cherche "generaliste" OU "generale" pour être sûr
+    $estGeneraliste = str_contains($slug, 'generaliste') || str_contains($slug, 'generale');
+
+    // 5. Retourne VRAI si ce n'est PAS un généraliste (donc c'est un spécialiste)
+    return !$estGeneraliste;
 }
 
     /* --- MESSAGERIE --- */

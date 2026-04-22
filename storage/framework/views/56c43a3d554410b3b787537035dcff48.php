@@ -29,7 +29,7 @@
                     </div>
 
                     <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-4">
-                        Accès <span class="text-emerald-400">Premium Activé</span>
+                        Accès <span class="text-emerald-400"> Activé</span>
                     </h2>
 
                     <div class="space-y-6 mb-8">

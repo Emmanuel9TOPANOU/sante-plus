@@ -175,7 +175,7 @@
                     <span class="text-slate-400 text-[10px] font-black uppercase tracking-[0.15em]">ID Patient</span>
                 </div>
                 <h3 class="text-lg font-black mt-2 text-white bg-slate-800 px-4 py-1 rounded-xl shadow-inner">
-                    #HS-<?php echo e(str_pad($patient->id ?? 0, 4, '0', STR_PAD_LEFT)); ?>
+                    ID-<?php echo e(str_pad($patient->id ?? 0, 4, '0', STR_PAD_LEFT)); ?>
 
                 </h3>
             </div>

@@ -169,6 +169,10 @@ Route::middleware(['auth', 'verified', 'role:patient'])
         Route::get('/mon-dossier', [PatientMedicalRecord::class, 'index'])->name('medical_record.index');
         Route::get('/historique', [PatientDashboard::class, 'history'])->name('history.index');
 
+        // Ajoute cette ligne si elle manque
+    Route::get('/prescriptions/{id}', [App\Http\Controllers\Patient\PrescriptionController::class, 'show'])->name('prescriptions.show');
+
+
         // Ordonnances
         Route::prefix('ordonnances')->name('prescriptions.')->group(function () {
             Route::get('/', [PatientMedicalRecord::class, 'history'])->name('index'); 
