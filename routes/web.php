@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\Auth\ForcePasswordUpdateController;
+use App\Http\Controllers\VerifyPrescriptionController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Admin\AdminDoctorController;
 use App\Http\Controllers\Admin\AdminRendezvousController;
 use App\Http\Controllers\Admin\SpecialiteController;
 use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\ServiceController;  // ← Ajouté
 
 // Patient Controllers
 use App\Http\Controllers\Patient\DashboardController as PatientDashboard;
@@ -65,6 +67,10 @@ Route::get('/dashboard', function () {
     };
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+/* --- ROUTE PUBLIQUE DE VÉRIFICATION D'ORDONNANCE --- */
+Route::get('/verify/prescription/{token}', [VerifyPrescriptionController::class, 'show'])
+    ->name('verify.prescription');
+
 /* --- ESPACE ADMIN --- */
 Route::middleware(['auth', 'verified', 'role:admin'])
     ->prefix('admin')
@@ -75,23 +81,16 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::resource('users', AdminUserController::class);
         Route::patch('/medecins/{id}/validate', [AdminDoctorController::class, 'validateDoctor'])->name('medecins.validate');
         Route::resource('medecins', AdminDoctorController::class);
+        Route::resource('services', ServiceController::class);  // ← Route pour les services
         Route::resource('specialites', SpecialiteController::class);
-        Route::get('/rendezvous', [AdminRendezvousController::class, 'index'])->name('rendezvous.index');
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::patch('/settings/update', [AdminSettingController::class, 'update'])->name('settings.update');
 });
 
-
-
 Route::get('/force-migrate', function () {
     try {
-        // Désactivation des clés étrangères pour forcer le passage
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-
-        // On supprime la table si elle existe à moitié ou est mal configurée
         DB::statement("DROP TABLE IF EXISTS availabilities");
-
-        // Création brute de la table avec tes colonnes exactes
         DB::statement("
             CREATE TABLE availabilities (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -105,9 +104,7 @@ Route::get('/force-migrate', function () {
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
-
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
         return "<h1>Félicitations !</h1><p>La table <b>availabilities</b> a été créée avec succès sur Railway.</p>";
     } catch (\Exception $e) {
         return "<h1>Erreur :</h1><p>" . $e->getMessage() . "</p>";
@@ -141,7 +138,6 @@ Route::middleware(['auth', 'verified', 'role:medecin', 'check.medecin'])
 
         Route::get('/consultations/create/{rendezvous}', [ConsultationController::class, 'create'])->name('consultations.create');
         Route::resource('consultations', ConsultationController::class)->except(['create']);
-        Route::get('/prescriptions/download/{id}', [DoctorPrescriptionCtrl::class, 'download'])->name('prescriptions.download');
         Route::resource('prescriptions', DoctorPrescriptionCtrl::class);
         Route::resource('availabilities', AvailabilityController::class);
 
@@ -159,25 +155,16 @@ Route::middleware(['auth', 'verified', 'role:patient'])
     ->group(function () {
         Route::get('/dashboard', [PatientDashboard::class, 'index'])->name('dashboard');
         
-        // --- ROUTES RENDEZ-VOUS ---
-        // On définit la route d'annulation AVANT le resource pour éviter les conflits
         Route::get('/rendezvous/{id}/annulation-rapide', [PatientRendezvous::class, 'annulationRapide'])
             ->name('rendezvous.annulation_rapide');
             
         Route::resource('rendezvous', PatientRendezvous::class);
 
+        // Dossier médical et prescriptions
         Route::get('/mon-dossier', [PatientMedicalRecord::class, 'index'])->name('medical_record.index');
         Route::get('/historique', [PatientDashboard::class, 'history'])->name('history.index');
-
-        // Ajoute cette ligne si elle manque
-    Route::get('/prescriptions/{id}', [App\Http\Controllers\Patient\PrescriptionController::class, 'show'])->name('prescriptions.show');
-
-
-        // Ordonnances
-        Route::prefix('ordonnances')->name('prescriptions.')->group(function () {
-            Route::get('/', [PatientMedicalRecord::class, 'history'])->name('index'); 
-            Route::get('/download/{id}', [PatientPrescriptionCtrl::class, 'download'])->name('download');
-        });
+        Route::get('/prescriptions/{id}', [PatientPrescriptionCtrl::class, 'show'])->name('prescriptions.show');
+        Route::get('/prescriptions/download/{id}', [PatientPrescriptionCtrl::class, 'download'])->name('prescriptions.download');
 
         // Analyses
         Route::prefix('analyses')->name('lab_results.')->group(function () {
@@ -192,8 +179,6 @@ Route::middleware(['auth', 'verified', 'role:patient'])
             Route::post('/store', [PatientMessageController::class, 'store'])->name('store');
         });
 });
-
-
 
 /* --- PARAMÈTRES COMMUNS --- */
 Route::middleware(['auth'])->group(function () {

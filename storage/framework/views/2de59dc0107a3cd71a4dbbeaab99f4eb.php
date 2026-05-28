@@ -1,145 +1,379 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <title>Ordonnance_<?php echo e($prescription->reference); ?></title>
+    <meta charset="UTF-8">
+    <title>Ordonnance Médicale - <?php echo e(optional($prescription)->reference ?? '---'); ?></title>
     <style>
-        @page { margin: 1.5cm; }
-        body { 
-            font-family: 'Helvetica', Arial, sans-serif; 
-            color: #1a202c; 
-            font-size: 13px;
+        @page {
+            margin: 1.5cm;
+            size: A4;
+        }
+        
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #1a202c;
+            line-height: 1.4;
+            font-size: 12px;
+            background: white;
+        }
+        
+        .main-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .sub-title {
+            text-align: center;
+            font-size: 10px;
+            color: #2563eb;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .ref-number {
+            text-align: right;
+            font-size: 11px;
+            font-family: monospace;
+            margin-bottom: 20px;
+        }
+        
+        .doctor-info {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .doctor-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+        
+        .doctor-specialty {
+            font-size: 12px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        
+        .doctor-details {
+            font-size: 10px;
+            color: #475569;
+        }
+        
+        .date-lieu {
+            text-align: right;
+            margin-bottom: 25px;
+            font-size: 11px;
+            font-style: italic;
+        }
+        
+        .patient-title {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .patient-info {
+            font-size: 11px;
+            margin-bottom: 5px;
             line-height: 1.4;
         }
         
-        /* 1. Bloc Médecin (En-tête) */
-        .header-table { width: 100%; border-bottom: 2px solid #2d3748; padding-bottom: 10px; margin-bottom: 20px; }
-        .doctor-info { width: 60%; }
-        .doctor-name { font-size: 18px; font-weight: bold; color: #2b6cb0; text-transform: uppercase; }
-        .doctor-detail { color: #4a5568; font-size: 11px; margin-top: 2px; }
-        .clinic-logo { width: 40%; text-align: right; font-weight: 900; font-size: 20px; color: #cbd5e0; }
-
-        /* 2. Bloc Patient & Date */
-        .patient-box { 
-            background-color: #f7fafc; 
-            border: 1px solid #edf2f7; 
-            padding: 15px; 
-            border-radius: 8px;
-            margin-bottom: 30px;
+        .rp-symbol {
+            font-size: 32px;
+            font-style: italic;
+            font-family: 'Times New Roman', serif;
+            margin: 25px 0 15px 0;
         }
-        .patient-table { width: 100%; }
-        .label { color: #718096; font-weight: bold; text-transform: uppercase; font-size: 10px; }
-        .value { font-size: 14px; font-weight: bold; }
-
-        /* 3. Corps de l'Ordonnance */
-        .prescription-title { 
-            text-align: center; 
-            text-decoration: underline; 
-            font-size: 16px; 
-            font-weight: bold; 
-            margin-bottom: 25px; 
-            letter-spacing: 1px;
+        
+        .medication-item {
+            margin-bottom: 20px;
+            padding-left: 15px;
         }
-        .medication-list { min-height: 400px; padding-left: 10px; }
-
-        /* 4. Bas de page */
-        .footer-table { width: 100%; margin-top: 30px; }
-        .city-date { font-size: 12px; margin-bottom: 15px; }
-        .signature-box { text-align: right; }
-        .stamp-zone { 
-            margin-top: 10px; 
-            height: 100px; 
-            width: 200px; 
-            border: 1px dashed #e2e8f0; 
-            display: inline-block;
-            text-align: center;
-            color: #cbd5e0;
-            line-height: 100px;
+        
+        .med-name {
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .med-details {
+            font-size: 11px;
+            color: #475569;
+            margin-top: 3px;
+        }
+        
+        .warning-note {
             font-size: 10px;
-            text-transform: uppercase;
+            color: #dc2626;
+            margin-top: 3px;
+            font-style: italic;
+        }
+        
+        .verification-title {
+            font-weight: bold;
+            font-size: 11px;
+            margin: 30px 0 10px 0;
+            text-align: center;
+        }
+        
+        .sha256-code {
+            font-family: monospace;
+            font-size: 9px;
+            word-break: break-all;
+            text-align: center;
+            background: #f8fafc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .signature-box {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .doctor-signature {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .valid-badge {
+            color: #10b981;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        
+        .signature-date {
+            font-size: 9px;
+            color: #94a3b8;
+        }
+        
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .qr-label {
+            font-size: 8px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 8px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+        
+        .clearfix {
+            clear: both;
         }
     </style>
 </head>
 <body>
 
-    <table class="header-table">
-        <tr>
-            <td class="doctor-info">
-                
-                <div class="doctor-name">
-                    <?php if(str_contains(strtoupper($prescription->medecin->name), 'DR.')): ?>
-                        <?php echo e($prescription->medecin->name); ?>
+    
+    <div class="main-title">ORDONNANCE MÉDICALE</div>
+    <div class="sub-title">Document sécurisé — Signature numérique certifiée</div>
 
-                    <?php else: ?>
-                        Dr. <?php echo e($prescription->medecin->name); ?>
+    
+    <div class="ref-number">N° <?php echo e(optional($prescription)->reference ?? '---'); ?></div>
 
-                    <?php endif; ?>
-                </div>
-                
-                
-                <div class="doctor-detail">
-                    <?php if(is_array($prescription->medecin->specialite) || is_object($prescription->medecin->specialite)): ?>
-                        <?php echo e($prescription->medecin->specialite->nom_specialite ?? 'Médecin Généraliste'); ?>
+    
+    <div class="doctor-info">
+        <div class="doctor-name">Dr. <?php echo e(optional($prescription->medecin)->name ?? 'Médecin inconnu'); ?></div>
+        <div class="doctor-specialty">
+            <?php echo e(optional(optional($prescription->medecin)->specialite)->nom_specialite ?? ''); ?>
 
-                    <?php else: ?>
-                        <?php echo e($prescription->medecin->specialite ?? 'Médecin Généraliste'); ?>
+        </div>
+        
+        <?php if(optional($prescription->medecin)->numero_ordre): ?>
+            <div class="doctor-details">
+                N° Inscription à l'Ordre des Médecins : <?php echo e(optional($prescription->medecin)->numero_ordre); ?>
 
-                    <?php endif; ?>
-                </div>
+            </div>
+        <?php endif; ?>
+        
+        <?php if(optional($prescription->medecin)->cabinet_nom): ?>
+            <div class="doctor-details">
+                Cabinet : <?php echo e(optional($prescription->medecin)->cabinet_nom); ?>
 
-                <div class="doctor-detail">Ordre des Médecins : <?php echo e($prescription->medecin->ordre_id ?? 'N° 12.455/2026'); ?></div>
-                <div class="doctor-detail">Clinique Béni DE Dieu, Gbedjromede, Cotonou</div>
-                <div class="doctor-detail">Tel: +229 0160613363</div>
-            </td>
-            <td class="clinic-logo">Santé +</td>
-        </tr>
-    </table>
+            </div>
+        <?php endif; ?>
+        
+        <?php if(optional($prescription->medecin)->cabinet_adresse): ?>
+            <div class="doctor-details">
+                <?php echo e(optional($prescription->medecin)->cabinet_adresse); ?>
 
-    <div class="patient-box">
-        <table class="patient-table">
-            <tr>
-                <td width="50%">
-                    <span class="label">Patient :</span><br>
-                    <span class="value"><?php echo e($prescription->patient->name); ?></span>
-                </td>
-                <td width="25%">
-                    <span class="label">Âge :</span><br>
-                    <span class="value"><?php echo e($prescription->age ?? '--'); ?> ans</span>
-                </td>
-                <td width="25%">
-                    <span class="label">Poids :</span><br>
-                    <span class="value"><?php echo e($prescription->poids ?? '--'); ?> kg</span>
-                </td>
-            </tr>
-        </table>
-    </div>
+            </div>
+        <?php endif; ?>
+        
+        <?php if(optional($prescription->medecin)->cabinet_ville): ?>
+            <div class="doctor-details">
+                <?php echo e(optional($prescription->medecin)->cabinet_ville); ?>
 
-    <div class="city-date">
-        Fait à <strong>Cotonou</strong>, le <strong><?php echo e(\Carbon\Carbon::parse($prescription->date_emission)->format('d/m/Y')); ?></strong>
-    </div>
+            </div>
+        <?php endif; ?>
+        
+        <div class="doctor-details">
+            <?php if(optional($prescription->medecin)->cabinet_telephone): ?>
+                Tél : <?php echo e(optional($prescription->medecin)->cabinet_telephone); ?>
 
-    <div class="prescription-title">ORDONNANCE MEDICALE</div>
+            <?php endif; ?>
+            <?php if(optional($prescription->medecin)->cabinet_telephone && !empty($medecinEmail)): ?>
+                | 
+            <?php endif; ?>
+            <?php if(!empty($medecinEmail)): ?>
+                Email : <?php echo e($medecinEmail); ?>
 
-    <div class="medication-list">
-        <div style="white-space: pre-line; font-size: 14px; color: #2d3748; line-height: 1.6;">
-            <?php echo nl2br(e($prescription->contenu)); ?>
-
+            <?php endif; ?>
         </div>
     </div>
 
-    <table class="footer-table">
-        <tr>
-            <td width="50%" style="vertical-align: bottom; font-size: 10px; color: #a0aec0;">
-                Réf: <?php echo e($prescription->reference); ?><br>
-                Généré électroniquement par Don DE DEIEU le <?php echo e(date('d/m/Y à H:i')); ?>
+    
+    <div class="date-lieu">
+        Fait à <strong><?php echo e(optional($prescription->medecin)->cabinet_ville ?? 'Ville inconnue'); ?></strong>, le <strong>
+            <?php if(optional($prescription)->date_emission): ?>
+                <?php echo e(\Carbon\Carbon::parse($prescription->date_emission)->translatedFormat('d F Y')); ?>
 
-            </td>
-            <td class="signature-box">
-                <p style="margin-bottom: 5px; font-weight: bold;">Signature et Cachet :</p>
-                <div class="stamp-zone">Zone de Cachet</div>
-            </td>
-        </tr>
-    </table>
+            <?php elseif(optional($prescription)->created_at): ?>
+                <?php echo e(optional($prescription)->created_at->translatedFormat('d F Y')); ?>
+
+            <?php else: ?>
+                <?php echo e(now()->translatedFormat('d F Y')); ?>
+
+            <?php endif; ?>
+        </strong>
+    </div>
+
+    
+    <div class="patient-title">PATIENT :</div>
+    <div class="patient-info">
+        <?php echo e(strtoupper(optional($prescription->patient)->name ?? 'PATIENT')); ?>
+
+        <?php if(optional($prescription->patient)->date_naissance): ?>
+            | Né(e) le : <?php echo e(\Carbon\Carbon::parse(optional($prescription->patient)->date_naissance)->format('d/m/Y')); ?>
+
+        <?php endif; ?>
+        <?php if(optional($prescription->patient)->numero_securite_sociale): ?>
+            | N° SS : <?php echo e(optional($prescription->patient)->numero_securite_sociale); ?>
+
+        <?php endif; ?>
+    </div>
+    <div class="patient-info">
+        <?php if(optional($prescription->patient)->adresse): ?>
+            Adresse : <?php echo e(optional($prescription->patient)->adresse); ?> |
+        <?php endif; ?>
+        Poids : <?php echo e(optional($prescription)->poids ?? '--'); ?> kg
+    </div>
+    <?php if(optional($prescription->patient)->allergies): ?>
+        <div class="patient-info" style="color: #dc2626;">
+            ⚠️ Allergies connues : <?php echo e(optional($prescription->patient)->allergies); ?>
+
+        </div>
+    <?php endif; ?>
+
+    
+    <div class="rp-symbol">Rp/</div>
+    
+    <div>
+        <?php if(!empty(optional($prescription)->contenu)): ?>
+            <?php
+                $lines = explode("\n", $prescription->contenu);
+            ?>
+            <?php $__currentLoopData = $lines; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $line): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(trim($line)): ?>
+                    <div class="medication-item">
+                        <div class="med-name"><?php echo e(trim($line)); ?></div>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php else: ?>
+            <div style="color: #94a3b8; font-style: italic;">Aucun médicament prescrit</div>
+        <?php endif; ?>
+    </div>
+
+    
+    <div class="verification-title">CODE DE VÉRIFICATION</div>
+    <div class="sha256-code">
+        <?php echo e($sha256 ?? hash('sha256', (optional($prescription)->reference ?? '') . (optional($prescription)->created_at ?? now()) . (optional($prescription)->verification_token ?? ''))); ?>
+
+    </div>
+
+    
+    <div class="signature-box">
+        <div class="doctor-signature">Dr. <?php echo e(optional($prescription->medecin)->name ?? 'Médecin inconnu'); ?></div>
+        
+        <?php if(optional(optional($prescription->medecin)->specialite)->nom_specialite): ?>
+            <div class="doctor-details" style="margin-bottom: 5px;">
+                <?php echo e(optional(optional($prescription->medecin)->specialite)->nom_specialite); ?>
+
+            </div>
+        <?php endif; ?>
+        
+        <?php if(optional($prescription->medecin)->numero_ordre): ?>
+            <div class="doctor-details">
+                N° Inscription à l'Ordre des Médecins : <?php echo e(optional($prescription->medecin)->numero_ordre); ?>
+
+            </div>
+        <?php endif; ?>
+        
+        <?php if(optional($prescription->medecin)->cabinet_nom || optional($prescription->medecin)->cabinet_ville): ?>
+            <div class="doctor-details">
+                Établissement : 
+                <?php if(optional($prescription->medecin)->cabinet_nom): ?><?php echo e(optional($prescription->medecin)->cabinet_nom); ?><?php endif; ?>
+                <?php if(optional($prescription->medecin)->cabinet_nom && optional($prescription->medecin)->cabinet_ville): ?>, <?php endif; ?>
+                <?php if(optional($prescription->medecin)->cabinet_ville): ?><?php echo e(optional($prescription->medecin)->cabinet_ville); ?><?php endif; ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if(optional($prescription->medecin)->cabinet_telephone): ?>
+            <div class="doctor-details">
+                Tél : <?php echo e(optional($prescription->medecin)->cabinet_telephone); ?>
+
+            </div>
+        <?php endif; ?>
+        
+        <div class="signature-date">
+            Signé le :
+            <?php if(optional($prescription)->created_at): ?>
+                <?php echo e(optional($prescription)->created_at->format('d/m/Y à H:i:s')); ?>
+
+            <?php else: ?>
+                <?php echo e(now()->format('d/m/Y à H:i:s')); ?>
+
+            <?php endif; ?>
+        </div>
+        <div class="valid-badge">SIGNATURE NUMÉRIQUE VALIDE</div>
+    </div>
+
+    
+    <?php if(!empty($qrCodeSvg)): ?>
+        <div class="qr-container">
+            <?php echo $qrCodeSvg; ?>
+
+            <div class="qr-label">Scanner pour vérifier l'authenticité</div>
+        </div>
+    <?php endif; ?>
+
+    
+    <div class="sha256-code" style="font-size: 7px; margin-top: 20px;">
+        Empreinte SHA-256 : <?php echo e($sha256 ?? hash('sha256', (optional($prescription)->reference ?? '') . (optional($prescription)->created_at ?? now()) . (optional($prescription)->verification_token ?? ''))); ?>
+
+    </div>
+
+    
+    <div class="footer">
+        Document valable 3 mois. Ordonnance générée par MonEspaceSanté — Système sécurisé.<br>
+        Toute falsification est punie par la loi.
+    </div>
 
 </body>
 </html><?php /**PATH C:\Users\POSTE DETRAVAIL\Desktop\Soutenance\Santé+\resources\views/doctor/prescriptions/pdf.blade.php ENDPATH**/ ?>

@@ -8,13 +8,120 @@
 <?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
-    <div class="py-6 md:py-12 bg-[#F8FAFC] min-h-screen montserrat">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex min-h-screen bg-gradient-to-br from-blue-50 to-white" x-data="{ mobileMenuOpen: false }">
+
+    
+    <div x-show="mobileMenuOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="mobileMenuOpen = false" 
+         class="fixed inset-0 bg-blue-900/40 backdrop-blur-sm z-[40] lg:hidden" x-cloak>
+    </div>
+
+    
+    <nav class="fixed top-0 left-0 right-0 bg-white shadow-md border-b border-blue-100 z-50">
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+                        <img src="<?php echo e(asset('assets/images/logo.png')); ?>" alt="Logo MonEspaceSanté" class="w-full h-full object-contain">
+                    </div>
+                </div>
+
+                
+                <div class="hidden lg:flex items-center gap-1">
+                    <a href="<?php echo e(route('patient.dashboard')); ?>" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all <?php echo e(request()->routeIs('patient.dashboard') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50'); ?>">
+                     Tableau de bord
+                    </a>
+                    <a href="<?php echo e(route('patient.rendezvous.index')); ?>" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all <?php echo e(request()->routeIs('patient.rendezvous*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50'); ?>">
+                       Rendez-vous
+                    </a>
+                   
+                    <a href="<?php echo e(route('patient.lab_results.index')); ?>" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all <?php echo e(request()->routeIs('patient.lab_results*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50'); ?>">
+                       Analyses
+                    </a>
+                   
+                    <a href="<?php echo e(route('patient.medical_record.index')); ?>" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all <?php echo e(request()->routeIs('patient.medical_record*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50'); ?>">
+                       Dossier Médical
+                    </a>
+
+                     <a href="<?php echo e(route('patient.messages.index')); ?>" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all <?php echo e(request()->routeIs('patient.messages*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600'); ?>">
+              Messagerie
+            </a>
+                </div>
+
+                
+                <div class="flex items-center gap-4">
+                    <?php if(auth()->guard()->check()): ?>
+                        <form method="POST" action="<?php echo e(route('logout')); ?>" class="m-0">
+                            <?php echo csrf_field(); ?>
+                            <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all duration-300 shadow-md cursor-pointer">
+                                <span>Quitter</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                            </button>
+                        </form>
+                    <?php endif; ?>
+
+                    
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 text-slate-700 hover:bg-blue-50 rounded-xl transition-all">
+                        <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg x-show="mobileMenuOpen" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        
+        <div x-show="mobileMenuOpen" x-cloak @click.away="mobileMenuOpen = false" class="lg:hidden bg-white border-t border-blue-100 px-4 py-4 space-y-2 shadow-xl">
+            <a href="<?php echo e(route('patient.dashboard')); ?>" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all <?php echo e(request()->routeIs('patient.dashboard') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600'); ?>">
+              Tableau de bord
+            </a>
+            <a href="<?php echo e(route('patient.rendezvous.index')); ?>" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all <?php echo e(request()->routeIs('patient.rendezvous*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600'); ?>">
+               Rendez-vous
+            </a>
+          
+            <a href="<?php echo e(route('patient.lab_results.index')); ?>" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all <?php echo e(request()->routeIs('patient.lab_results*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600'); ?>">
+               Analyses
+            </a>
+           
+            <a href="<?php echo e(route('patient.medical_record.index')); ?>" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all <?php echo e(request()->routeIs('patient.medical_record*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600'); ?>">
+               Dossier Médical
+            </a>
+             <a href="<?php echo e(route('patient.messages.index')); ?>" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all <?php echo e(request()->routeIs('patient.messages*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600'); ?>">
+              Messagerie
+            </a>
+        </div>
+    </nav>
+
+    
+    <main class="flex-1 p-4 md:p-8 min-h-screen pt-24 lg:pt-20">
+        <div class="max-w-7xl mx-auto">
             
             
             <?php
                 $prescriptionsEnAttente = $analyses->where('statut', 'en_attente');
-                // Protection : Un patient n'est pas un spécialiste, on initialise à false par défaut
                 $isSpecialist = false;
                 if(Auth::user()->role === 'medecin' && Auth::user()->specialty) {
                     $isSpecialist = strtolower(Auth::user()->specialty) !== 'généraliste';
@@ -52,11 +159,13 @@
 
             
             <div class="mb-6 md:mb-8">
-                <a href="<?php echo e(route('patient.dashboard')); ?>" class="inline-flex items-center p-2.5 bg-white rounded-xl shadow-sm border border-gray-50 text-gray-400 hover:text-blue-600 transition-colors gap-2 text-xs md:text-sm font-bold">
+                <a href="<?php echo e(route('patient.dashboard')); ?>" class="inline-flex items-center p-2.5 bg-white rounded-xl shadow-sm border border-blue-100 text-slate-400 hover:text-blue-600 transition-colors gap-2 text-xs md:text-sm font-bold">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     Retour au tableau de bord
                 </a>
             </div>
+
+            
             <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
@@ -77,36 +186,36 @@
             </div>
 
             
-            <div class="bg-white shadow-sm rounded-3xl md:rounded-[2.5rem] border border-gray-100 overflow-hidden">
+            <div class="bg-white shadow-sm rounded-3xl md:rounded-[2.5rem] border border-blue-100 overflow-hidden">
                 
                 
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-50/50 border-b border-gray-100">
-                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Détails de l'Analyse</th>
+                            <tr class="bg-blue-50/30 border-b border-blue-100">
+                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Détails de l'Analyse</th>
                                 <?php if($isSpecialist): ?>
-                                    <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Interprétation</th>
+                                    <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Interprétation</th>
                                 <?php endif; ?>
-                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Valeur / Norme</th>
-                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Statut</th>
-                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Documents</th>
+                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Valeur / Norme</th>
+                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Statut</th>
+                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Documents</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-blue-50">
                             <?php $__empty_1 = true; $__currentLoopData = $analyses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $analyse): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                 <?php
                                     $status = $analyse->statut ?? 'en_attente';
                                     $statusClasses = [
-                                        'termine' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                                        'en_attente' => 'bg-amber-100 text-amber-700 border-amber-200',
-                                        'annule' => 'bg-red-100 text-red-700 border-red-200'
+                                        'termine' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                        'en_attente' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                        'annule' => 'bg-red-50 text-red-700 border-red-200'
                                     ][$status] ?? 'bg-gray-100 text-gray-700 border-gray-200';
                                 ?>
                                 <tr class="hover:bg-blue-50/30 transition-all group">
                                     <td class="px-8 py-6">
                                         <div class="flex items-center space-x-4">
-                                            <div class="w-12 h-12 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-blue-600 group-hover:text-white group-hover:bg-blue-600 group-hover:rotate-6 transition-all duration-300">
+                                            <div class="w-12 h-12 rounded-2xl bg-white border border-blue-100 shadow-sm flex items-center justify-center text-blue-600 group-hover:text-white group-hover:bg-blue-600 group-hover:rotate-6 transition-all duration-300">
                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
                                             </div>
                                             <div>
@@ -126,7 +235,7 @@
 
                                     <td class="px-8 py-6 text-center">
                                         <?php if($status == 'termine' && $analyse->valeur): ?>
-                                            <div class="inline-block px-4 py-2 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div class="inline-block px-4 py-2 bg-blue-50/30 rounded-2xl border border-blue-100">
                                                 <span class="text-sm font-black text-gray-900"><?php echo e($analyse->valeur); ?> <span class="text-blue-500 text-[10px]"><?php echo e($analyse->unite); ?></span></span>
                                                 <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Norme: <?php echo e($analyse->norme ?? 'N/A'); ?></p>
                                             </div>
@@ -145,7 +254,6 @@
                                     </td>
                                     <td class="px-8 py-6 text-right">
                                         <?php if($status == 'termine'): ?>
-                                            
                                             <a href="<?php echo e(route('patient.lab_results.download', $analyse->id)); ?>" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase transition-all transform hover:-translate-y-1 shadow-lg shadow-slate-100 active:scale-95">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                                 <span>Télécharger PDF</span>
@@ -172,7 +280,7 @@
                 </div>
 
                 
-                <div class="md:hidden divide-y divide-gray-50">
+                <div class="md:hidden divide-y divide-blue-50">
                     <?php $__empty_1 = true; $__currentLoopData = $analyses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $analyse): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <?php
                             $status = $analyse->statut ?? 'en_attente';
@@ -199,7 +307,7 @@
                                 </span>
                             </div>
 
-                            <div class="bg-gray-50/50 rounded-2xl p-4 flex justify-between items-center border border-gray-100 mb-4">
+                            <div class="bg-blue-50/30 rounded-2xl p-4 flex justify-between items-center border border-blue-100 mb-4">
                                 <?php if($status == 'termine'): ?>
                                     <div>
                                         <p class="text-[8px] text-gray-400 font-bold uppercase">Résultat</p>
@@ -215,8 +323,7 @@
                             </div>
 
                             <?php if($status == 'termine'): ?>
-                                
-                                <a href="<?php echo e(route('patient.lab_results.download', $analyse->id)); ?>" class="w-full flex items-center justify-center space-x-2 bg-slate-900 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-transform">
+                                <a href="<?php echo e(route('patient.lab_results.download', $analyse->id)); ?>" class="w-full flex items-center justify-center space-x-2 bg-slate-900 hover:bg-blue-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-transform">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                     <span>Bilan PDF</span>
                                 </a>
@@ -229,14 +336,42 @@
 
                 
                 <?php if($analyses->hasPages()): ?>
-                    <div class="px-8 py-6 bg-gray-50/30 border-t border-gray-100">
+                    <div class="px-8 py-6 bg-blue-50/30 border-t border-blue-100">
                         <?php echo e($analyses->links()); ?>
 
                     </div>
                 <?php endif; ?>
             </div>
         </div>
-    </div>
+    </main>
+
+</div>
+
+<style>
+    [x-cloak] { display: none !important; }
+    body { 
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+    }
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes slide-in-from-top-4 {
+        from { transform: translateY(-1rem); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .animate-in {
+        animation-duration: 0.7s;
+        animation-fill-mode: both;
+    }
+    .fade-in {
+        animation-name: fade-in;
+    }
+    .slide-in-from-top-4 {
+        animation-name: slide-in-from-top-4;
+    }
+</style>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>

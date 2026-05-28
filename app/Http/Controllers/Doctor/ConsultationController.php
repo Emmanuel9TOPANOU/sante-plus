@@ -11,7 +11,7 @@ use App\Models\LabResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade\Pdf; // Pour le futur téléchargement
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ConsultationController extends Controller
 {
@@ -23,7 +23,7 @@ class ConsultationController extends Controller
         $consultations = Consultation::with('patient')
             ->where('doctor_id', Auth::id())
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('doctor.consultations.index', compact('consultations'));
     }
@@ -119,15 +119,16 @@ class ConsultationController extends Controller
 
     /**
      * Liste des analyses prescrites par le médecin (pour saisie des résultats)
+     * CORRECTION : Ajout de la pagination
      */
     public function indexAnalyses()
     {
         $analyses = LabResult::whereHas('consultation', function($query) {
                 $query->where('doctor_id', Auth::id());
             })
-            ->with('user')
+            ->with(['user', 'consultation'])
             ->latest()
-            ->get();
+            ->paginate(10);  // ← CORRECTION : get() remplacé par paginate(10)
 
         return view('doctor.analyses.index', compact('analyses'));
     }
@@ -135,58 +136,69 @@ class ConsultationController extends Controller
     /**
      * Enregistre les résultats d'analyses (Le médecin valide en interne)
      */
-  public function storeAnalyseResult(Request $request, $id)
-{
-    // 1. Validation des données arrivant du formulaire
-    $request->validate([
-        'valeur' => 'required|string',
-        'unite' => 'required|string',
-        'norme' => 'required|string',
-        'date_prelevement' => 'required',
-        'laboratoire_nom' => 'required|string',
-        'interpretation' => 'nullable|string',
-    ]);
+    public function storeAnalyseResult(Request $request, $id)
+    {
+        // 1. Validation des données arrivant du formulaire
+        $request->validate([
+            'valeur' => 'required|string',
+            'unite' => 'required|string',
+            'norme' => 'required|string',
+            'date_prelevement' => 'required|date',
+            'laboratoire_nom' => 'required|string',
+            'interpretation' => 'nullable|string',
+        ]);
 
-    $analyse = LabResult::findOrFail($id);
+        $analyse = LabResult::findOrFail($id);
 
-    // 2. Mise à jour selon TES colonnes PHPMyAdmin
-    $analyse->update([
-        'valeur' => $request->valeur,
-        'unite' => $request->unite,
-        'norme' => $request->norme,
-        'date_prelevement' => $request->date_prelevement,
-        'laboratoire_nom' => $request->laboratoire_nom,
-        'interpretation' => $request->interpretation,
-        
-        // Champs automatiques
-        'statut' => 'termine', 
-        'date_validation' => now(),
-        'biologiste_nom' => Auth::user()->name,
-    ]);
+        // Vérification que l'analyse appartient bien au médecin connecté
+        if ($analyse->consultation?->doctor_id !== Auth::id()) {
+            abort(403, 'Action non autorisée.');
+        }
 
-    return back()->with('success', 'Résultats enregistrés avec succès.');
-}
+        // 2. Mise à jour
+        $analyse->update([
+            'valeur' => $request->valeur,
+            'unite' => $request->unite,
+            'norme' => $request->norme,
+            'date_prelevement' => $request->date_prelevement,
+            'laboratoire_nom' => $request->laboratoire_nom,
+            'interpretation' => $request->interpretation,
+            'statut' => 'termine', 
+            'date_validation' => now(),
+            'biologiste_nom' => Auth::user()->name,
+        ]);
 
-
-    public function downloadAnalyse($id)
-{
-    $analyse = LabResult::with(['user', 'doctor', 'consultation'])->findOrFail($id);
-
-    // Vérification de sécurité
-    if ($analyse->statut !== 'termine') {
-        return back()->with('error', 'Le résultat n\'est pas encore disponible.');
+        return back()->with('success', 'Résultats enregistrés avec succès.');
     }
 
-    $pdf = Pdf::loadView('doctor.analyses.pdf', compact('analyse'));
-    
-    // Format du nom de fichier : Analyse_NomPatient_Date.pdf
-    $fileName = 'Analyse_' . str_replace(' ', '_', $analyse->user->name) . '_' . now()->format('dmY') . '.pdf';
+    /**
+     * Téléchargement du PDF d'analyse
+     */
+    public function downloadAnalyse($id)
+    {
+        $analyse = LabResult::with(['user', 'consultation'])->findOrFail($id);
 
-    return $pdf->download($fileName);
-}
+        // Vérification de sécurité
+        if ($analyse->statut !== 'termine') {
+            return back()->with('error', 'Le résultat n\'est pas encore disponible.');
+        }
 
+        // Vérification que l'analyse appartient au médecin ou au patient
+        if ($analyse->consultation?->doctor_id !== Auth::id() && Auth::user()->role !== 'admin') {
+            abort(403, 'Accès non autorisé.');
+        }
 
+        $pdf = Pdf::loadView('doctor.analyses.pdf', compact('analyse'));
+        
+        // Format du nom de fichier
+        $fileName = 'Analyse_' . str_replace(' ', '_', $analyse->user->name) . '_' . now()->format('dmY') . '.pdf';
 
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Afficher le détail d'une consultation
+     */
     public function show($id)
     {
         $consultation = Consultation::with(['patient', 'doctor'])->findOrFail($id);

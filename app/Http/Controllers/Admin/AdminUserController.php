@@ -14,24 +14,34 @@ class AdminUserController extends Controller
     /**
      * 1️⃣ Voir la liste des utilisateurs (avec filtres)
      */
-    public function index(Request $request)
-    {
-        $query = User::query();
+  public function index(Request $request)
+{
+    $query = User::with(['medecin', 'specialite']);
 
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
-        }
-
-        if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        $users = $query->latest()->paginate(10);
-        return view('admin.users.index', compact('users'));
+    if ($request->filled('search')) {
+        $searchTerm = $request->search;
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('name', 'LIKE', "%{$searchTerm}%")
+              ->orWhere('email', 'LIKE', "%{$searchTerm}%");
+        });
     }
+
+    if ($request->filled('specialite')) {
+        $query->whereHas('medecin', function($q) use ($request) {
+            $q->where('specialite_id', $request->specialite);
+        });
+    }
+
+    $users = $query->latest()->paginate(10)->withQueryString();
+    $specialites = Specialite::all();
+    
+    // 🔥 Ajout des statistiques
+    $stats = [
+        'new_users_month' => User::where('created_at', '>=', now()->startOfMonth())->count()
+    ];
+
+    return view('admin.users.index', compact('users', 'specialites', 'stats'));
+}
 
     /**
      * Formulaire de création

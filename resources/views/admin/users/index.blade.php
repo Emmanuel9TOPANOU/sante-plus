@@ -1,132 +1,342 @@
 <x-app-layout>
-    {{-- Background subtil pour l'effet Premium --}}
-    <div class="min-h-screen bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-50 via-white to-blue-50/30">
+<div x-data="{ mobileMenuOpen: false }" class="flex min-h-screen bg-gradient-to-br from-slate-100 to-white font-sans antialiased">
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
-            <div class="space-y-10 md:space-y-14">
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        
+        .glass-effect { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); }
+        [x-cloak] { display: none !important; }
+        
+        .nav-item {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .nav-item:hover {
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2), 0 4px 6px -2px rgba(37, 99, 235, 0.1);
+        }
+        .nav-item.active svg {
+            color: white;
+        }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .admin-table-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+        .admin-table-wrapper::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        .admin-table-wrapper::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
 
-                {{-- HEADER --}}
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-100 pb-10">
-                    <div class="flex items-center gap-8">
-                        <a href="{{ route('admin.dashboard') }}"
-                           class="group px-8 py-4 bg-white border border-slate-200 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-500 hover:text-blue-600 hover:border-blue-200 shadow-sm hover:shadow-xl hover:shadow-blue-50 transition-all duration-500">
-                           ← Retour
-                        </a>
-                        
-                        <div>
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="h-px w-10 bg-blue-600 rounded-full"></span>
-                                <span class="text-blue-600 font-black text-xs uppercase tracking-[0.3em]">Console Admin</span>
-                            </div>
-                            <h2 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight italic">
-                                Gestion des <span class="relative inline-block">
-                                    <span class="relative z-10 text-blue-600">Comptes</span>
-                                    <span class="absolute bottom-2 left-0 w-full h-4 bg-blue-100/50 -z-0"></span>
-                                </span>
-                            </h2>
-                        </div>
-                    </div>
+    {{-- OVERLAY MOBILE --}}
+    <div x-show="mobileMenuOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="mobileMenuOpen = false" 
+         class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden" x-cloak>
+    </div>
+
+
+   <nav class="fixed top-0 left-0 right-0 bg-white shadow-lg border-b border-slate-100 z-50">
+    <div class="max-w-7xl mx-auto px-4 md:px-8">
+        <div class="flex justify-between items-center h-20">
+            
+            {{-- LOGO --}}
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="Logo MonEspaceSanté" class="w-full h-full object-contain">
                 </div>
+            </div>
 
-                {{-- TABLEAU --}}
-                <div class="relative group">
-                    <div class="absolute -inset-1 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-[3rem] blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                    
-                    <div class="relative bg-white/90 backdrop-blur-xl rounded-[2.5rem] border border-white shadow-2xl shadow-slate-200/50 overflow-hidden admin-table-wrapper">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[900px]">
-                                <thead>
-                                    <tr class="bg-slate-50/50">
-                                        <th class="px-10 py-10 text-xs font-black uppercase tracking-[0.2em] text-slate-500">Membre Identifié</th>
-                                        <th class="px-10 py-10 text-xs font-black uppercase tracking-[0.2em] text-slate-500">Niveau d'accès</th>
-                                        <th class="px-10 py-10 text-xs font-black uppercase tracking-[0.2em] text-slate-500 text-center">Statut</th>
-                                        <th class="px-10 py-10 text-xs font-black uppercase tracking-[0.2em] text-slate-500 text-right">Actions</th>
-                                    </tr>
-                                </thead>
+            {{-- LIENS NAVIGATION DESKTOP --}}
+            <div class="hidden lg:flex items-center gap-1">
+                <a href="{{ route('admin.dashboard') }}" 
+                   class="nav-item px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 {{ request()->routeIs('admin.dashboard') ? 'active' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Dashboard
+                </a>
 
-                                <tbody class="divide-y divide-slate-100">
-                                    @forelse($users as $user)
-                                    <tr class="hover:bg-blue-50/40 transition-all duration-500 group/row">
-                                        
-                                        <td class="px-10 py-8">
-                                            <div class="flex flex-col gap-1">
-                                                <span class="font-black text-slate-900 text-base uppercase tracking-wide group-hover/row:text-blue-600 transition-colors">
-                                                    {{ $user->name }}
-                                                </span>
-                                                <span class="text-sm font-medium text-slate-400 lowercase">
-                                                    {{ $user->email }}
-                                                </span>
-                                            </div>
-                                        </td>
+                <a href="{{ route('admin.users.index') }}" 
+                   class="nav-item px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 {{ request()->routeIs('admin.users.*') ? 'active' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    Utilisateurs
+                    @if($stats['new_users_month'] > 0)
+                        <span class="text-[10px] font-black bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full ml-1">+{{ $stats['new_users_month'] }}</span>
+                    @endif
+                </a>
 
-                                        <td class="px-10 py-8">
-                                            <span class="text-xs font-black uppercase tracking-widest text-slate-600 bg-slate-100 px-3 py-1 rounded-lg">
-                                                {{ $user->role }}
-                                            </span>
-                                        </td>
+                <a href="{{ route('admin.medecins.index') }}" 
+                   class="nav-item px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 {{ request()->routeIs('admin.medecins.*') ? 'active' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    Médecins
+                </a>
 
-                                        <td class="px-10 py-8 text-center">
-                                            @if($user->role === 'medecin')
-                                                <div class="flex items-center justify-center gap-2">
-                                                    <span class="relative flex h-2 w-2">
-                                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $user->medecin?->est_valide ? 'bg-emerald-400' : 'bg-amber-400' }} opacity-75"></span>
-                                                        <span class="relative inline-flex rounded-full h-2 w-2 {{ $user->medecin?->est_valide ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
-                                                    </span>
-                                                    <span class="{{ $user->medecin?->est_valide ? 'text-emerald-600' : 'text-amber-600' }} text-xs font-black uppercase tracking-widest">
-                                                        {{ $user->medecin?->est_valide ? 'Actif' : 'En attente' }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <span class="text-slate-300">—</span>
-                                            @endif
-                                        </td>
+                <a href="{{ route('admin.specialites.index') }}" 
+                   class="nav-item px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 {{ request()->routeIs('admin.specialites.*') ? 'active' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    Spécialités
+                </a>
 
-                                        <td class="px-10 py-8 text-right">
-                                            <div class="flex items-center justify-end gap-4">
-                                                @if($user->role === 'medecin' && $user->medecin)
-                                                    <form action="{{ route('admin.medecins.validate', ['id' => $user->medecin->id]) }}" method="POST">
-                                                        @csrf @method('PATCH')
-                                                        <button type="submit" 
-                                                                class="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 shadow-sm
-                                                                {{ $user->medecin->est_valide ? 'bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white hover:shadow-amber-100' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white hover:shadow-emerald-100' }}">
-                                                            {{ $user->medecin->est_valide ? 'Suspendre' : 'Valider le profil' }}
-                                                        </button>
-                                                    </form>
-                                                @endif
+                {{-- NOUVEAU LIEN SERVICES --}}
+                <a href="{{ route('admin.services.index') }}" 
+                   class="nav-item px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 {{ request()->routeIs('admin.services.*') ? 'active' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    Services
+                </a>
 
-                                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Confirmer la suppression ?')">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" 
-                                                            class="px-6 py-3 rounded-xl bg-rose-50 text-rose-600 font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 hover:text-white hover:shadow-lg hover:shadow-rose-100 transition-all duration-300">
-                                                        Supprimer
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="4" class="px-10 py-20 text-center text-slate-400 font-medium italic">
-                                            Aucun utilisateur trouvé dans la base de données.
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+               
 
-                <div class="mt-12 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    {{ $users->links() }}
-                </div>
+                <a href="{{ route('admin.settings.index') }}" 
+                   class="nav-item px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 {{ request()->routeIs('admin.settings.*') ? 'active' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Paramètres
+                </a>
+            </div>
+
+            {{-- ACTIONS & DÉCONNEXION --}}
+            <div class="flex items-center gap-4">
+                @auth
+                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 transition-all duration-300 shadow-md cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            <span class="hidden sm:inline">Déconnexion</span>
+                        </button>
+                    </form>
+                @endauth
+
+                {{-- BOUTON HAMBURGER MOBILE --}}
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-all">
+                    <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg x-show="mobileMenuOpen" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 
-    <style>
-        @media (max-width: 1023px) {
-            .admin-table-wrapper { overflow-x: auto; width: 100%; }
-        }
-    </style>
+    {{-- MENU MOBILE (Dropdown) --}}
+    <div x-show="mobileMenuOpen" x-cloak @click.away="mobileMenuOpen = false" class="lg:hidden bg-white border-t border-slate-100 px-4 py-4 space-y-2 shadow-xl">
+        <a href="{{ route('admin.dashboard') }}" 
+           class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600' }}">
+            Dashboard
+        </a>
+        <a href="{{ route('admin.users.index') }}" 
+           class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('admin.users.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600' }}">
+            Utilisateurs
+        </a>
+        <a href="{{ route('admin.medecins.index') }}" 
+           class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('admin.medecins.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600' }}">
+            Médecins
+        </a>
+        <a href="{{ route('admin.specialites.index') }}" 
+           class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('admin.specialites.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600' }}">
+            Spécialités
+        </a>
+        {{-- NOUVEAU LIEN SERVICES MOBILE --}}
+        <a href="{{ route('admin.services.index') }}" 
+           class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('admin.services.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600' }}">
+            Services
+        </a>
+       
+        <a href="{{ route('admin.settings.index') }}" 
+           class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('admin.settings.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600' }}">
+            Paramètres
+        </a>
+    </div>
+</nav>
+
+    {{-- CONTENU PRINCIPAL --}}
+    <main class="flex-1 p-4 md:p-8 pt-24 transition-all duration-300">
+        <div class="max-w-7xl mx-auto space-y-6 md:space-y-8 animate-fade-in-up">
+            
+            {{-- HEADER --}}
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 pb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="h-px w-10 bg-blue-600 rounded-full"></span>
+                        <span class="text-blue-600 font-black text-xs uppercase tracking-[0.3em]">Console Admin</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                        Gestion des <span class="text-blue-600">Comptes</span>
+                    </h2>
+                    <p class="text-slate-500 mt-2 text-sm">Gérez tous les utilisateurs de la plateforme</p>
+                </div>
+                
+                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:shadow-md transition-all duration-300">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Retour au Dashboard
+                </a>
+            </div>
+
+            {{-- STATISTIQUES RAPIDES --}}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                    <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Total</p>
+                    <p class="text-2xl font-black text-slate-800">{{ $users->total() }}</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                    <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Administrateurs</p>
+                    <p class="text-2xl font-black text-purple-600">{{ $users->where('role', 'admin')->count() }}</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                    <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Médecins</p>
+                    <p class="text-2xl font-black text-emerald-600">{{ $users->where('role', 'medecin')->count() }}</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                    <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Patients</p>
+                    <p class="text-2xl font-black text-blue-600">{{ $users->where('role', 'patient')->count() }}</p>
+                </div>
+            </div>
+
+            {{-- TABLEAU --}}
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden admin-table-wrapper">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-slate-50/80 border-b border-slate-100">
+                                <th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-slate-500">Membre</th>
+                                <th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-slate-500">Email</th>
+                                <th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-slate-500">Rôle</th>
+                                <th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-slate-500 text-center">Statut</th>
+                                <th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-slate-500">Date</th>
+                                <th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-slate-500 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($users as $user)
+                            <tr class="hover:bg-blue-50/30 transition-all duration-200 group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-blue-600 font-bold shadow-sm">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-slate-800 text-sm">{{ $user->name }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-slate-500 text-sm">{{ $user->email }}</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase
+                                        {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-600' : '' }}
+                                        {{ $user->role === 'medecin' ? 'bg-emerald-100 text-emerald-600' : '' }}
+                                        {{ $user->role === 'patient' ? 'bg-blue-100 text-blue-600' : '' }}">
+                                        {{ $user->role }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($user->role === 'medecin')
+                                        <div class="flex items-center justify-center gap-2">
+                                            <span class="relative flex h-2 w-2">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $user->medecin?->est_valide ? 'bg-emerald-400' : 'bg-amber-400' }} opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-2 w-2 {{ $user->medecin?->est_valide ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                                            </span>
+                                            <span class="{{ $user->medecin?->est_valide ? 'text-emerald-600' : 'text-amber-600' }} text-[10px] font-black uppercase">
+                                                {{ $user->medecin?->est_valide ? 'Validé' : 'En attente' }}
+                                            </span>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-300 text-xs">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs text-slate-500">{{ $user->created_at->translatedFormat('d M Y') }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        @if($user->role === 'medecin' && $user->medecin)
+                                            <form action="{{ route('admin.medecins.validate', ['id' => $user->medecin->id]) }}" method="POST" class="inline">
+                                                @csrf @method('PATCH')
+                                                <button type="submit" 
+                                                        class="px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-wider transition-all duration-300
+                                                        {{ $user->medecin->est_valide ? 'bg-amber-100 text-amber-600 hover:bg-amber-600 hover:text-white' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white' }}">
+                                                    {{ $user->medecin->est_valide ? 'Suspendre' : 'Valider' }}
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?')" class="inline">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="p-2 rounded-lg text-rose-500 hover:bg-rose-50 transition-all">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-6 py-16 text-center text-slate-400 font-medium">
+                                        <svg class="w-12 h-12 mx-auto mb-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                        </svg>
+                                        Aucun utilisateur trouvé
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- PAGINATION --}}
+            @if($users->hasPages())
+                <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                    {{ $users->links() }}
+                </div>
+            @endif
+        </div>
+    </main>
+</div>
 </x-app-layout>

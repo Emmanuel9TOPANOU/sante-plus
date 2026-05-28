@@ -57,15 +57,14 @@
 
     <div class="fixed inset-0 bg-gradient-to-tr from-slate-900/90 via-slate-900/20 to-blue-900/50 -z-20"></div>
 
-    {{-- ÉTAT GLOBAL CORRIGÉ --}}
+    {{-- ÉTAT GLOBAL --}}
     <div class="flex items-center justify-center min-h-screen relative z-10 py-10 px-6 montserrat" 
          x-data="{ 
-            role: 'patient', 
+            role: '{{ $role }}', 
             openModal: false, 
             search: '',
             selectedSpecName: 'Choisir une spécialité...',
             selectedSpecId: '',
-            {{-- On map 'nom_specialite' ici pour correspondre à la DB --}}
             specialites: {{ $specialites->map(fn($s) => ['id' => $s->id, 'nom' => $s->nom_specialite])->toJson() }}
          }">
 
@@ -89,112 +88,182 @@
                     <button @click="role = 'medecin'" type="button" :class="role === 'medecin' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'" class="flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Médecin</button>
                 </div>
 
+
                 <form method="POST" action="{{ route('register') }}" class="space-y-3">
-                    @csrf
-                    <input type="hidden" name="role" :value="role">
+    @csrf
+    <input type="hidden" name="role" :value="role">
 
-                    {{-- Nom --}}
-                    <div class="relative group">
-                        <i class="fa-solid fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                        <input type="text" name="name" value="{{ old('name') }}" required class="w-full pl-12 pr-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 focus:border-blue-500/50 outline-none transition-all" placeholder="Nom complet">
-                    </div>
-
-                    {{-- Champs Patient --}}
-                    <div x-show="role === 'patient'" x-transition class="grid grid-cols-2 gap-3">
-                      <div class="space-y-2">
-    {{-- Label avec style professionnel --}}
-    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-        Genre / Sexe
-    </label>
-
+    {{-- Nom (lettres seulement) --}}
     <div class="relative group">
-        {{-- Icône décorative pour le côté médical/pro --}}
-        <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400 transition-colors">
-            <i class="fa-solid fa-venus-mars"></i>
-        </div>
-
-        {{-- Le Select --}}
-        <select name="sexe" 
-                class="w-full pl-12 pr-10 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl text-sm text-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none appearance-none transition-all cursor-pointer">
-            <option value="" disabled selected class="bg-slate-900">Choisir le genre</option>
-            <option value="M" class="bg-slate-900">Masculin</option>
-            <option value="F" class="bg-slate-900">Féminin</option>
-        </select>
-
-      
+        <i class="fa-solid fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        <input type="text" name="name" value="{{ old('name') }}" required 
+               pattern="^[A-Za-zÀ-ÿ\s\-]+$"
+               title="Le nom ne doit contenir que des lettres, espaces et tirets"
+               class="w-full pl-12 pr-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 focus:border-blue-500/50 outline-none transition-all" 
+               placeholder="Nom complet (ex: Jean Dupont)">
     </div>
-</div>
-                        <div class="relative group">
-                            <label class="field-label">Date de naissance</label>
-                            <input type="date" name="date_naissance" class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-[10px] text-white focus:border-blue-500/50 outline-none">
-                        </div>
-                    </div>
 
-                    {{-- Champs Médecin --}}
-                    <div x-show="role === 'medecin'" x-transition class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="relative group">
-                                <label class="field-label">Matricule</label>
-                                <input type="text" name="matricule" placeholder="Ex: MED-001" class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white focus:border-blue-500/50 outline-none">
-                            </div>
-                            <div class="relative group">
-                                <label class="field-label">Spécialité</label>
-                                <button type="button" @click="openModal = true" 
-                                        class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-[10px] text-white text-left focus:border-blue-500/50 outline-none flex items-center justify-between">
-                                    <span x-text="selectedSpecName" class="truncate"></span>
-                                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-500"></i>
-                                </button>
-                                <input type="hidden" name="specialite_id" :value="selectedSpecId">
-                            </div>
-                        </div>
-                        {{-- Nouveaux champs pour la table medecins --}}
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="relative group">
-                                <label class="field-label">N° Cabinet</label>
-                                <input type="text" name="cabinet_numero" placeholder="Ex: C-204" class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white focus:border-blue-500/50 outline-none">
-                            </div>
-                            <div class="relative group">
-                                <label class="field-label">Biographie</label>
-                                <input type="text" name="biographie" placeholder="Bref résumé..." class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white focus:border-blue-500/50 outline-none">
-                            </div>
-                        </div>
-                    </div>
+    {{-- Champs PATIENT --}}
+    <div x-show="role === 'patient'" x-transition class="grid grid-cols-2 gap-3">
+        <div class="space-y-2">
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Genre / Sexe</label>
+            <div class="relative group">
+                <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400 transition-colors">
+                    <i class="fa-solid fa-venus-mars"></i>
+                </div>
+                <select name="sexe" class="w-full pl-12 pr-10 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl text-sm text-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none appearance-none transition-all cursor-pointer">
+                    <option value="" disabled selected class="bg-slate-900">Choisir le genre</option>
+                    <option value="M" class="bg-slate-900">Masculin</option>
+                    <option value="F" class="bg-slate-900">Féminin</option>
+                </select>
+            </div>
+        </div>
+        <div class="relative group">
+            <label class="field-label">Date de naissance</label>
+            <input type="date" name="date_naissance" class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-[10px] text-white focus:border-blue-500/50 outline-none">
+        </div>
+    </div>
 
-                    {{-- Email --}}
-                    <div class="relative group">
-                        <i class="fa-solid fa-envelope absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full pl-12 pr-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 outline-none" placeholder="Adresse e-mail">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="tel" name="telephone" value="{{ old('telephone') }}" required class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 outline-none" placeholder="Téléphone">
-                        <input type="text" name="adresse" value="{{ old('adresse') }}" required class="w-full px-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 outline-none" placeholder="Ville">
-                    </div>
-
-                    {{-- Password --}}
-                    <div x-data="{ show: false }" class="relative group">
-                        <i class="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                        <input :type="show ? 'text' : 'password'" name="password" required class="w-full pl-12 pr-12 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 outline-none" placeholder="Mot de passe">
-                        <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600"><i class="fa-solid" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i></button>
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="submit" class="btn-shimmer w-full bg-gradient-to-r from-blue-700 to-blue-500 text-white font-black py-4 rounded-2xl shadow-xl uppercase tracking-widest text-[10px] transform hover:-translate-y-1 transition-all">Finaliser mon inscription</button>
-                    </div>
-
-
-                     {{-- login --}}
-                    <div class="text-center pt-6 border-t border-white/10">
-                        <p class="text-[10px] text-slate-400 uppercase">
-                            Déjà inscrit ?
-                            <a href="{{ route('login') }}" class="text-white font-bold hover:text-blue-400 underline ml-1">Se connecter</a>
-                        </p>
-                    </div>
-                </form>
+    {{-- Champs MÉDECIN (version établissement) --}}
+    <div x-show="role === 'medecin'" x-transition class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+            <div class="relative group">
+                <label class="field-label">Matricule</label>
+                <input type="text" name="matricule" placeholder="Ex: MED-001" required
+                       pattern="^[A-Z0-9\-]+$"
+                       title="Lettres majuscules, chiffres et tirets uniquement"
+                       class="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-xs text-white focus:border-blue-500/50 outline-none">
+            </div>
+            <div class="relative group">
+                <label class="field-label">Spécialité</label>
+                <button type="button" @click="openModal = true" 
+                        class="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-xs text-white text-left focus:border-blue-500/50 outline-none flex items-center justify-between">
+                    <span x-text="selectedSpecName" class="truncate">Choisir une spécialité</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-500"></i>
+                </button>
+                <input type="hidden" name="specialite_id" :value="selectedSpecId">
             </div>
         </div>
 
-        {{-- MODAL POPUP FIXÉ --}}
+        <div class="grid grid-cols-2 gap-3">
+            <div class="relative group">
+                <label class="field-label">Numéro d'Ordre des Médecins</label>
+                <input type="text" name="numero_ordre" required
+                       pattern="^[A-Z]{3}-\d{4}-\d{5}$"
+                       title="Format: OMB-2024-00123"
+                       class="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-xs text-white font-mono focus:border-blue-500/50 outline-none"
+                       placeholder="Ex: OMB-2024-00123">
+                <p class="text-[7px] text-blue-400/50 mt-1 ml-3">Format: OMB-2024-00123 (Ordre des Médecins du Bénin)</p>
+            </div>
+   <div class="relative group">
+    <label class="block text-[10px] font-black text-slate-400 group-focus-within:text-blue-400 uppercase tracking-widest mb-2 ml-2 transition-colors duration-300">
+        <i class="fa-solid fa-building mr-1.5 opacity-70"></i> Service d'affectation
+    </label>
+    
+    <div class="relative">
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-300 z-10 pointer-events-none">
+            <i class="fa-solid fa-hospital-user text-base"></i>
+        </div>
+        
+        <select name="service_id" required
+                class="w-full pl-11 pr-12 py-4 bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl text-sm text-slate-200 appearance-none cursor-pointer focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 focus:shadow-[0_0_20px_rgba(59,130,246,0.15)] outline-none transition-all duration-300 hover:bg-white/[0.08] hover:border-white/20">
+            <option value="" disabled selected class="bg-slate-900 text-slate-500">Sélectionner un service</option>
+            @foreach($services as $service)
+                <option value="{{ $service->id }}" class="bg-slate-900 text-slate-300 py-3" {{ old('service_id') == $service->id ? 'selected' : '' }}>
+                    {{ $service->nom }}
+                </option>
+            @endforeach
+        </select>
+        
+        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-blue-400 group-hover:text-slate-200 transition-all duration-300 group-focus-within:rotate-180">
+            <i class="fa-solid fa-chevron-down text-xs"></i>
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-2 mt-2.5 ml-2 opacity-80 group-focus-within:opacity-100 transition-opacity duration-300">
+        <div class="w-1 h-1 bg-blue-500 rounded-full shadow-[0_0_8px_#3b82f6]"></div>
+        <p class="text-[9px] text-slate-400 font-semibold tracking-wide">Service où vous exercez dans l'établissement</p>
+    </div>
+</div>
+        </div>
+        
+        {{-- Champ biographie (optionnel) --}}
+        <div class="relative group">
+            <label class="field-label">Biographie (optionnel)</label>
+            <textarea name="biographie" rows="2" 
+                      class="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 focus:border-blue-500/50 outline-none resize-none"
+                      placeholder="Bref résumé de votre parcours..."></textarea>
+        </div>
+    </div>
+
+    {{-- Email --}}
+    <div class="relative group">
+        <i class="fa-solid fa-envelope absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        <input type="email" name="email" value="{{ old('email') }}" required 
+               pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+               title="Entrez une adresse email valide (ex: nom@domaine.com)"
+               class="w-full pl-12 pr-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 outline-none" 
+               placeholder="Adresse e-mail">
+    </div>
+
+    {{-- Téléphone et Ville de résidence --}}
+    <div class="grid grid-cols-2 gap-3">
+        <div class="relative group">
+            <i class="fa-solid fa-phone absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+            <input type="tel" name="telephone" value="{{ old('telephone') }}" required 
+                   pattern="^[0-9+\-\s]{8,20}$"
+                   title="Entrez un numéro de téléphone valide"
+                   class="w-full pl-12 pr-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 outline-none" 
+                   placeholder="Téléphone (ex: +229 01 23 45 67)">
+        </div>
+        <div class="relative group">
+            <i class="fa-solid fa-location-dot absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+            <input type="text" name="adresse" value="{{ old('adresse') }}" required 
+                   class="w-full pl-12 pr-4 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 outline-none" 
+                   placeholder="Ville de résidence">
+        </div>
+    </div>
+
+    {{-- Mot de passe --}}
+    <div x-data="{ show: false }" class="relative group">
+        <i class="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        <input :type="show ? 'text' : 'password'" name="password" required 
+               minlength="6"
+               class="w-full pl-12 pr-12 compact-input bg-white/5 border border-white/10 rounded-2xl text-xs text-white placeholder-slate-500 outline-none" 
+               placeholder="Mot de passe (6 caractères minimum)">
+        <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600">
+            <i class="fa-solid" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+        </button>
+        <p class="text-[7px] text-slate-500 mt-1 ml-3">6 caractères minimum</p>
+    </div>
+
+    {{-- Affichage des erreurs --}}
+    @if ($errors->any())
+    <div class="bg-red-500/20 border border-red-500/50 rounded-xl p-3">
+        <ul class="text-[10px] text-red-300 space-y-1">
+            @foreach ($errors->all() as $error)
+                <li>⚠️ {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    <div class="pt-4">
+        <button type="submit" class="btn-shimmer w-full bg-gradient-to-r from-blue-700 to-blue-500 text-white font-black py-4 rounded-2xl shadow-xl uppercase tracking-widest text-[10px] transform hover:-translate-y-1 transition-all">
+            Finaliser mon inscription
+        </button>
+    </div>
+
+    {{-- Lien vers login --}}
+    <div class="text-center pt-6 border-t border-white/10">
+        <p class="text-[10px] text-slate-400 uppercase">
+            Déjà inscrit ?
+            <a href="{{ route('login') }}" class="text-white font-bold hover:text-blue-400 underline ml-1">Se connecter</a>
+        </p>
+    </div>
+</form>
+
+        {{-- MODAL POPUP --}}
         <div x-show="openModal" 
              x-transition:enter="transition ease-out duration-300" 
              x-transition:enter-start="opacity-0 scale-95" 
@@ -229,3 +298,32 @@
         </div>
     </div>
 </x-guest-layout>
+
+
+
+<script>
+    // Validation en temps réel du numéro de téléphone (chiffres seulement)
+    document.querySelectorAll('input[name="telephone"], input[name="cabinet_telephone"]')?.forEach(function(input) {
+        input.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9+\-\s]/g, '');
+        });
+    });
+
+    // Validation du nom (lettres seulement)
+    document.querySelector('input[name="name"]')?.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^A-Za-zÀ-ÿ\s\-]/g, '');
+    });
+
+    // Validation du format numéro d'ordre
+    document.querySelector('input[name="numero_ordre"]')?.addEventListener('input', function(e) {
+        let value = this.value.toUpperCase();
+        value = value.replace(/[^A-Z0-9\-]/g, '');
+        if (value.length > 3 && value[3] !== '-') {
+            value = value.slice(0, 3) + '-' + value.slice(3);
+        }
+        if (value.length > 8 && value[8] !== '-') {
+            value = value.slice(0, 8) + '-' + value.slice(8);
+        }
+        this.value = value;
+    });
+</script>

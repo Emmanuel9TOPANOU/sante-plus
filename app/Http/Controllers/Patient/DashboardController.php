@@ -22,32 +22,22 @@ class DashboardController extends Controller
             ->orderBy('heure_rdv')
             ->get();
 
-        // 2. Dernières Ordonnances
-        // ATTENTION : 'medecin' est déjà un User, donc pas de .user après
-        $dernieresOrdonnances = $user->ordonnances()
-            ->with(['medecin']) 
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // 3. Dernières Analyses (LabResult)
+        // 2. Dernières Analyses (LabResult)
         // On utilise la relation définie dans ton modèle User
         $dernieresAnalyses = $user->analyses()
             ->latest()
             ->take(3)
             ->get();
 
-        // 4. Calcul des statistiques
+        // 3. Calcul des statistiques
         $stats = [
             'rdv_count'         => $prochainsRendezVous->count(),
-            'ordonnances_count' => $user->ordonnances()->count(),
             'analyses_count'    => $user->analyses()->count(),
         ];
 
         return view('patient.dashboard', compact(
             'user', // On passe directement $user
             'prochainsRendezVous', 
-            'dernieresOrdonnances',
             'dernieresAnalyses',
             'stats'
         ));

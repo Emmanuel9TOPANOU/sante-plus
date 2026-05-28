@@ -108,9 +108,9 @@
     <div class="flex flex-col sm:flex-row items-start justify-start gap-4 lg:gap-6">
         
         
-        <a href="<?php echo e(route('register')); ?>" class="w-full sm:w-auto px-10 lg:px-12 py-5 lg:py-6 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl lg:rounded-3xl hover:-translate-y-1 transition-all uppercase tracking-widest text-[10px] lg:text-xs flex items-center justify-center gap-3">
+        <a href="<?php echo e(route('register', ['role' => 'medecin'])); ?>" class="w-full sm:w-auto px-10 lg:px-12 py-5 lg:py-6 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl lg:rounded-3xl hover:-translate-y-1 transition-all uppercase tracking-widest text-[10px] lg:text-xs flex items-center justify-center gap-3">
             <i class="fa-solid fa-calendar-check text-sm"></i>
-            Prendre RDV
+          je suis médecin
         </a>
 
         

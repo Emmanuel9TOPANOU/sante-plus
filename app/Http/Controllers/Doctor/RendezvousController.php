@@ -7,101 +7,70 @@ use Illuminate\Http\Request;
 use App\Models\Rendezvous;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ConfirmationRendezvous;
 use App\Mail\RappelRendezvous;
+use Illuminate\Support\Facades\Log;
 
 class RendezvousController extends Controller
 {
-    /**
-     * 📅 Afficher les rendez-vous actifs
-     */
     public function index()
     {
         $rendezvous = Rendezvous::with(['patient'])
             ->where('medecin_id', Auth::id())
-            ->whereNotIn('statut', ['termine', 'annule'])
+            // On exclut les terminés et annulés pour ne garder que 'attente' et 'confirme'
+            ->whereNotIn('statut', ['termine', 'annule']) 
             ->orderBy('date_rdv', 'asc')
             ->orderBy('heure_rdv', 'asc')
-            ->paginate(10);
+            ->get();
 
         return view('doctor.rendezvous.index', compact('rendezvous'));
     }
 
-    /**
-     * Confirmer un rendez-vous + email auto
-     * Renommé en confirmerRDV pour correspondre à la route
-     */
-    public function confirmerRDV($id)
-    {
-        $rdv = Rendezvous::with(['patient', 'medecin'])
-            ->where('medecin_id', Auth::id())
-            ->findOrFail($id);
-
-        if ($rdv->statut === 'confirme') {
-            return back()->with('error', 'Ce rendez-vous est déjà confirmé.');
-        }
-
-        // Vérification de l'email
-        if (!$rdv->patient || !$rdv->patient->email) {
-            return back()->with('error', ' Le patient n\'a pas d\'adresse email.');
-        }
-
-        $rdv->update(['statut' => 'confirme']);
-
-        try {
-            Mail::to($rdv->patient->email)->send(new ConfirmationRendezvous($rdv));
-            return back()->with('success', ' Rendez-vous confirmé et email envoyé.');
-        } catch (\Exception $e) {
-            // On log l'erreur mais on confirme quand même le RDV en base
-            return back()->with('success', ' RDV confirmé, mais l\'email n\'a pas pu être envoyé.');
-        }
+ public function confirmerRDV(Rendezvous $rendezvous)
+{
+    // 1. Sécurité : On vérifie que c'est bien le médecin du RDV
+    if ($rendezvous->medecin_id !== Auth::id()) {
+        abort(403);
     }
 
-    /**
-     * 📩 Envoyer un rappel manuel
-     */
+    // 2. Mise à jour du statut en base de données
+    $rendezvous->update(['statut' => 'confirme']);
+
+    try {
+        // 3. Envoi du mail avec le nom exact de la classe : ConfirmationRendezvous
+        Mail::to($rendezvous->patient->email)->send(new \App\Mail\ConfirmationRendezvous($rendezvous));
+        
+        return back()->with('success', 'Le rendez-vous a été confirmé et un email a été envoyé au patient.');
+    } catch (\Exception $e) {
+        // En cas d'erreur d'envoi (problème SMTP par exemple)
+        Log::error("Erreur Mail Confirmation: " . $e->getMessage());
+        
+        // Le statut reste 'confirme' en base, mais on informe l'utilisateur pour le mail
+        return back()->with('warning', 'Rendez-vous confirmé, mais l\'envoi de l\'email a échoué. Vérifiez votre configuration mail.');
+    }
+}
+
+    public function annulerRDV(Rendezvous $rendezvous)
+    {
+        if ($rendezvous->medecin_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Mise à jour vers 'annule' (conforme à votre BDD)
+        $rendezvous->update(['statut' => 'annule']);
+        
+        return back()->with('success', 'Rendez-vous annulé.');
+    }
+
     public function envoyerMail($id)
     {
-        $rdv = Rendezvous::with(['patient', 'medecin'])
-            ->where('medecin_id', Auth::id())
-            ->findOrFail($id);
-
-        if (!$rdv->patient || !$rdv->patient->email) {
-            return back()->with('error', ' Email du patient introuvable.');
-        }
+        $rdv = Rendezvous::with(['patient'])->findOrFail($id);
 
         try {
             Mail::to($rdv->patient->email)->send(new RappelRendezvous($rdv));
-            return back()->with('success', ' Rappel envoyé avec succès.');
+            return back()->with('success', 'Rappel envoyé.');
         } catch (\Exception $e) {
-            // En cas d'erreur, on affiche un message clair
-            return back()->with('error', ' Échec de l\'envoi du rappel technique.');
+            Log::error("Erreur Rappel: " . $e->getMessage());
+            return back()->with('error', 'L\'envoi a échoué.');
         }
-    }
-
-    /**
-     *  Annuler un rendez-vous
-     */
-    public function annulerRDV($id)
-    {
-        $rdv = Rendezvous::where('medecin_id', Auth::id())->findOrFail($id);
-        
-        $rdv->update(['statut' => 'annule']);
-        
-        return back()->with('success', ' Rendez-vous annulé.');
-    }
-
-    /**
-     * 📜 Historique
-     */
-    public function history()
-    {
-        $historique = Rendezvous::with(['patient'])
-            ->where('medecin_id', Auth::id())
-            ->where('statut', 'termine')
-            ->orderBy('date_rdv', 'desc')
-            ->paginate(15);
-
-        return view('doctor.rendezvous.history', compact('historique'));
     }
 }

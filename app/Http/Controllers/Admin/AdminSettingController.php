@@ -3,26 +3,35 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Setting; 
+use App\Models\Setting;
+use App\Models\User;  // ← AJOUTER CETTE LIGNE
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class AdminSettingController extends Controller
 {
     /**
      * Affiche la page des paramètres avec un design Pro.
      */
-    public function index()
+    public function index(): View
     {
         // Récupère les réglages ou renvoie un tableau vide
         $settings = Setting::pluck('value', 'key')->all();
-        return view('admin.settings.index', compact('settings'));
+        
+        // 🔥 Ajout des statistiques pour la navbar
+        $stats = [
+            'new_users_month' => User::where('created_at', '>=', now()->startOfMonth())->count()
+        ];
+        
+        return view('admin.settings.index', compact('settings', 'stats'));
     }
 
     /**
      * Met à jour les paramètres du système de manière sécurisée.
      */
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'clinic_name'    => 'required|string|max:100',

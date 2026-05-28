@@ -1,184 +1,391 @@
 <x-app-layout>
-<div x-data="{ openSidebar: false }" class="flex h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 font-sans overflow-hidden">
+<div class="flex min-h-screen bg-gradient-to-br from-blue-50 to-white" x-data="{ mobileMenuOpen: false, openSidebar: false }">
 
-    {{-- SIDEBAR --}}
-    <aside 
-        class="fixed inset-y-0 left-0 w-72 max-w-full bg-white/90 backdrop-blur-xl border-r border-blue-100 shadow-xl transform transition-transform duration-300 rounded-r-3xl
-        z-40 md:z-30 lg:static lg:translate-x-0"
-        :class="openSidebar ? 'translate-x-0' : '-translate-x-full'"
-        style="top: 0; height: 100dvh;">
+    {{-- OVERLAY MOBILE POUR NAVBAR --}}
+    <div x-show="mobileMenuOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="mobileMenuOpen = false" 
+         class="fixed inset-0 bg-blue-900/40 backdrop-blur-sm z-[40] lg:hidden" x-cloak>
+    </div>
 
-        {{-- Header mobile --}}
-        <div class="flex items-center justify-between p-4 lg:hidden">
-            <h2 class="font-black text-blue-600 uppercase text-xs tracking-widest">Mes Médecins</h2>
-            <button @click="openSidebar = false" class="p-2 bg-white rounded-lg shadow text-gray-400">
-                ✕
-            </button>
-        </div>
-
-        {{-- Search --}}
-        <div class="p-4 border-b border-blue-100">
-            <input type="text" id="contactSearch" placeholder="Rechercher un médecin..." 
-                class="w-full bg-white border border-blue-100 rounded-xl px-4 py-2.5 text-xs font-bold shadow focus:ring-2 focus:ring-blue-200 placeholder-gray-400 focus:outline-none">
-        </div>
-
-        {{-- Liste des Médecins --}}
-        <div id="contactList" class="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-blue-100 scrollbar-track-white">
-            <h3 class="px-3 text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Vos Praticiens</h3>
-
-            @foreach($medecins as $medecin)
-            @php 
-                $unread = $unreadCounts[$medecin->id] ?? 0;
-                $isActive = (isset($receiver) && $receiver->id == $medecin->id);
-            @endphp
-
-            <a href="{{ route('patient.messages.show', $medecin->id) }}"
-                data-name="{{ strtolower($medecin->name) }}"
-                class="contact-item flex items-center p-3 rounded-2xl transition-all duration-300 relative focus:outline-none focus:ring-2 focus:ring-blue-300 group
-                {{ $isActive ? 'bg-blue-50 shadow-md border-l-4 border-blue-600' : 'hover:bg-blue-100/60 hover:shadow-lg' }}">
+    {{-- NAVBAR HORIZONTALE --}}
+    <nav class="fixed top-0 left-0 right-0 bg-white shadow-md border-b border-blue-100 z-50">
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            <div class="flex justify-between items-center h-20">
                 
-                <div class="relative">
-                    <div class="w-11 h-11 {{ $isActive ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white' }} flex items-center justify-center rounded-2xl font-black transition-colors shadow">
-                        {{ strtoupper(substr($medecin->name, 0, 1)) }}
+                {{-- LOGO / TITRE --}}
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo MonEspaceSanté" class="w-full h-full object-contain">
                     </div>
-                    @if($unread > 0)
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white animate-bounce shadow-lg">
-                            {{ $unread }}
-                        </span>
-                    @endif
                 </div>
 
-                <div class="ml-3 flex-1 truncate">
-                    <h4 class="text-[13px] font-black {{ $isActive ? 'text-blue-700' : 'text-gray-700 group-hover:text-blue-700' }} truncate">
-                        Dr. {{ $medecin->name }}
-                    </h4>
-                    <p class="text-[10px] {{ $isActive ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-400' }} font-bold uppercase tracking-tight truncate">
-                        @if($medecin->specialite)
-                            {{ $medecin->specialite->nom }}
-                        @else
-                            <span class="text-red-400">Aucune spécialité</span>
-                        @endif
-                    </p>
+                {{-- LIENS NAVIGATION DESKTOP --}}
+                <div class="hidden lg:flex items-center gap-1">
+                    <a href="{{ route('patient.dashboard') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.dashboard') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Tableau de bord
+                    </a>
+                    <a href="{{ route('patient.rendezvous.index') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.rendezvous*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Rendez-vous
+                    </a>
+                 
+                    <a href="{{ route('patient.lab_results.index') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.lab_results*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Analyses
+                    </a>
+                  
+                    <a href="{{ route('patient.medical_record.index') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.medical_record*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Dossier Medical
+                    </a>
+                    <a href="{{ route('patient.messages.index') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.messages*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Messagerie
+                    </a>
                 </div>
 
-                @if($isActive)
-                    <div class="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-                @endif
-            </a>
-            @endforeach
+                {{-- ACTIONS & DÉCONNEXION --}}
+                <div class="flex items-center gap-4">
+                    @auth
+                        <form method="POST" action="{{ route('logout') }}" class="m-0">
+                            @csrf
+                            <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all duration-300 shadow-md cursor-pointer">
+                                <span>Quitter</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                            </button>
+                        </form>
+                    @endauth
 
-            @if($medecins->isEmpty())
-                <div class="p-4 text-center">
-                    <p class="text-[11px] text-gray-400 font-bold uppercase italic">Aucun médecin disponible</p>
+                    {{-- BOUTON HAMBURGER UNIQUE --}}
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 text-slate-700 hover:bg-blue-50 rounded-xl transition-all">
+                        <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg x-show="mobileMenuOpen" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
-            @endif
+            </div>
         </div>
-    </aside>
 
-    {{-- OVERLAY MOBILE --}}
-    <div x-show="openSidebar" x-transition.opacity @click="openSidebar = false"
-        class="fixed inset-0 bg-slate-900/40 z-30 md:z-20 lg:hidden backdrop-blur-sm"></div>
+        {{-- MENU MOBILE (Dropdown) avec liens actifs --}}
+        <div x-show="mobileMenuOpen" x-cloak @click.away="mobileMenuOpen = false" class="lg:hidden bg-white border-t border-blue-100 px-4 py-4 space-y-2 shadow-xl">
+            <a href="{{ route('patient.dashboard') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.dashboard') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                Tableau de bord
+            </a>
+            <a href="{{ route('patient.rendezvous.index') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.rendezvous*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+               Rendez-vous
+            </a>
+        
+            <a href="{{ route('patient.lab_results.index') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.lab_results*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+              Analyses
+            </a>
+            
+            <a href="{{ route('patient.medical_record.index') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.medical_record*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+               Dossier Médical
+            </a>
+            <a href="{{ route('patient.messages.index') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.messages*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+               Messagerie
+            </a>
+        </div>
+    </nav>
 
-    {{-- MAIN --}}
-    <main class="flex-1 flex flex-col h-full relative min-w-0">
+  {{-- MAIN CONTENT --}}
+<main class="flex-1 h-full min-h-screen ">
+    <div class="flex h-full min-h-[calc(100vh-5rem)] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 font-sans">
 
-        {{-- HEADER --}}
-        <div class="flex items-center justify-between p-4 border-b border-gray-100 bg-white/80 backdrop-blur-md">
+        {{-- SIDEBAR PREMIUM --}}
+        <aside 
+            class="fixed inset-y-0 left-0 w-80 max-w-full bg-white/95 backdrop-blur-xl border-r border-slate-200/60 shadow-2xl transform transition-all duration-500 ease-out rounded-r-3xl
+            z-40 md:z-30 lg:static lg:translate-x-0"
+            :class="openSidebar ? 'translate-x-0' : '-translate-x-full'"
+            style="top: 80px; height: calc(100dvh - 80px);">
 
-            <div class="flex items-center space-x-3">
-                <button @click="openSidebar = true" class="lg:hidden p-2.5 bg-white rounded-xl shadow-sm border border-gray-50 text-blue-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            {{-- Header premium --}}
+            <div class="flex items-center justify-between p-5 lg:hidden border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                    </div>
+                    <h2 class="font-black text-slate-700 uppercase text-xs tracking-widest">Messages</h2>
+                </div>
+                <button @click="openSidebar = false" class="p-2 bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                 </button>
+            </div>
 
-                <a href="{{ route('patient.dashboard') }}" class="p-2.5 bg-white rounded-xl shadow-sm border border-gray-50 text-gray-400 hover:text-blue-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                </a>
-
-                <div>
-                    <h1 class="text-sm md:text-base font-black text-gray-800 uppercase tracking-tighter">
-                        Ma <span class="text-blue-600">Messagerie</span> <span class="text-gray-300 font-light ml-1">| Médicale</span>
-                    </h1>
+            {{-- Search premium --}}
+            <div class="p-5 border-b border-slate-100">
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" id="contactSearch" placeholder="Rechercher un médecin..." 
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-300 placeholder:text-slate-400 focus:outline-none transition-all">
                 </div>
             </div>
 
-            
-        </div>
+            {{-- Liste des Médecins premium --}}
+            <div id="contactList" class="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent" style="height: calc(100% - 130px);">
+                <h3 class="px-3 pt-2 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vos Praticiens</h3>
 
-        {{-- ZONE DE CHAT --}}
-        <div class="flex-1 flex flex-col bg-[#F8FAFC]">
+                @foreach($medecins as $medecin)
+                @php 
+                    $unread = $unreadCounts[$medecin->id] ?? 0;
+                    $isActive = (isset($receiver) && $receiver->id == $medecin->id);
+                @endphp
 
-            @if(isset($receiver))
-
-                {{-- CHAT HEADER --}}
-                <div class="flex items-center px-6 py-3 border-b bg-white/50">
-                    <div class="w-10 h-10 bg-white shadow-sm border border-gray-100 text-blue-600 rounded-xl flex items-center justify-center font-black mr-4">
-                        {{ strtoupper(substr($receiver->name, 0, 1)) }}
+                <a href="{{ route('patient.messages.show', $medecin->id) }}"
+                    data-name="{{ strtolower($medecin->name) }}"
+                    class="contact-item flex items-center p-3 rounded-xl transition-all duration-300 relative group
+                    {{ $isActive 
+                        ? 'bg-gradient-to-r from-blue-50 to-white shadow-md border border-blue-200/50' 
+                        : 'hover:bg-slate-50 hover:shadow-sm' }}">
+                    
+                    <div class="relative">
+                        <div class="w-12 h-12 {{ $isActive ? 'bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-200' : 'bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600' }} flex items-center justify-center rounded-xl font-black transition-all duration-300">
+                            {{ strtoupper(substr($medecin->name, 0, 1)) }}
+                        </div>
+                        @if($unread > 0)
+                            <span class="absolute -top-1 -right-1 bg-gradient-to-br from-red-500 to-rose-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-pulse">
+                                {{ $unread }}
+                            </span>
+                        @endif
                     </div>
 
-                    <div>
-                        <h3 class="font-black text-gray-800 text-sm">
-                            Dr. {{ $receiver->name }}
-                        </h3>
-                        <p class="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center">
-                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></span>
-                            Prêt à vous répondre
+                    <div class="ml-3 flex-1 truncate">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-black {{ $isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-blue-700' }} truncate">
+                                Dr. {{ $medecin->name }}
+                            </h4>
+                            @if($isActive)
+                                <span class="w-2 h-2 bg-blue-500 rounded-full shadow-sm shadow-blue-200"></span>
+                            @endif
+                        </div>
+                        <p class="text-[10px] {{ $isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-blue-400' }} font-semibold uppercase tracking-tight truncate mt-0.5">
+                            @if($medecin->specialite)
+                                {{ $medecin->specialite->nom }}
+                            @else
+                                <span class="text-amber-500">Spécialité non définie</span>
+                            @endif
                         </p>
                     </div>
+                </a>
+                @endforeach
+
+                @if($medecins->isEmpty())
+                    <div class="p-8 text-center">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-bold uppercase italic">Aucun médecin disponible</p>
+                    </div>
+                @endif
+            </div>
+        </aside>
+
+        {{-- OVERLAY MOBILE POUR SIDEBAR --}}
+        <div x-show="openSidebar" x-transition.opacity.duration.300 @click="openSidebar = false"
+            class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 md:z-20 lg:hidden"></div>
+
+        {{-- ZONE DE CHAT PREMIUM --}}
+        <div class="flex-1 flex flex-col h-full relative min-w-0">
+
+            {{-- HEADER CHAT PREMIUM --}}
+            <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-white/80 backdrop-blur-md">
+                <div class="flex items-center space-x-3">
+                    <button @click="openSidebar = true" class="lg:hidden p-2.5 bg-white rounded-xl shadow-md border border-slate-100 text-blue-600 hover:bg-blue-50 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"/>
+                        </svg>
+                    </button>
+
+                    <a href="{{ route('patient.dashboard') }}" class="p-2.5 bg-white rounded-xl shadow-md border border-slate-100 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                    </a>
+
+                    <div class="ml-2">
+                        <h1 class="text-base md:text-lg font-black text-slate-800 tracking-tight">
+                            Ma <span class="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">Messagerie</span>
+                        </h1>
+                        <p class="text-[9px] text-slate-400 font-semibold uppercase tracking-widest mt-0.5">Communication sécurisée</p>
+                    </div>
                 </div>
 
-                {{-- MESSAGES --}}
-                <div id="message-container" class="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth">
+                @if(isset($receiver))
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Connecté</span>
+                    </div>
+                @endif
+            </div>
 
-                    @foreach($messages as $message)
-                        @php $isMe = $message->sender_id == Auth::id(); @endphp
+            {{-- ZONE DE DISCUSSION PREMIUM --}}
+            <div class="flex-1 flex flex-col bg-gradient-to-b from-slate-50 to-white">
 
-                        <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }} group">
-                            <div class="max-w-[85%] md:max-w-[70%]">
-                                <div class="px-5 py-3 rounded-2xl shadow-sm transition-all
-                                    {{ $isMe 
-                                        ? 'bg-blue-600 text-white rounded-tr-none font-medium' 
-                                        : 'bg-white border border-gray-100 text-gray-700 rounded-tl-none' }}">
-                                    
-                                    <p class="text-sm leading-relaxed">{{ $message->content }}</p>
-                                </div>
-                                <div class="mt-1.5 px-1 {{ $isMe ? 'text-right' : 'text-left' }} text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
-                                    {{ $message->created_at->translatedFormat('H:i') }}
-                                </div>
+                @if(isset($receiver))
+
+                    {{-- CHAT HEADER PREMIUM --}}
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white/40 backdrop-blur-sm">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-500 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg shadow-blue-200 mr-4">
+                                {{ strtoupper(substr($receiver->name, 0, 1)) }}
+                            </div>
+                            <div>
+                                <h3 class="font-black text-slate-800 text-base">
+                                    Dr. {{ $receiver->name }}
+                                </h3>
+                              
                             </div>
                         </div>
-                    @endforeach
-                </div>
-
-                {{-- INPUT --}}
-                <div class="p-4 bg-white border-t border-gray-100">
-                    <form action="{{ route('patient.messages.store') }}" method="POST"
-                        class="max-w-4xl mx-auto flex items-center space-x-3 bg-slate-50 p-2 rounded-2xl border border-gray-100 focus-within:border-blue-300 transition-all">
-                        @csrf
-                        <input type="hidden" name="receiver_id" value="{{ $receiver->id }}">
-
-                        <input type="text" name="content" required autocomplete="off"
-                            placeholder="Écrivez votre message au Dr. {{ explode(' ', $receiver->name)[0] }}..."
-                            class="flex-1 bg-transparent border-none text-sm font-medium focus:ring-0 placeholder-gray-400 px-3">
-
-                        <button type="submit" class="bg-blue-600 text-white h-10 w-10 flex items-center justify-center rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 transition-all active:scale-95">
-                            <svg class="w-5 h-5 transform rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                        </button>
-                    </form>
-                </div>
-
-            @else
-                {{-- EMPTY STATE --}}
-                <div class="flex-1 flex flex-col items-center justify-center text-center p-8">
-                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                        <svg class="w-10 h-10 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        <div class="hidden md:flex items-center gap-2 text-xs text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Messagerie chiffrée</span>
+                        </div>
                     </div>
-                    <h2 class="text-gray-800 font-black text-lg uppercase italic">Votre espace de discussion</h2>
-                    <p class="text-gray-400 text-sm max-w-xs font-medium">Sélectionnez un médecin dans la liste de gauche pour démarrer une conversation sécurisée.</p>
-                </div>
-            @endif
 
+                    {{-- MESSAGES PREMIUM --}}
+                    <div id="message-container" class="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth">
+                        @foreach($messages as $message)
+                            @php $isMe = $message->sender_id == Auth::id(); @endphp
+
+                            <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }} animate-fade-in-up">
+                                <div class="max-w-[85%] md:max-w-[65%] lg:max-w-[55%]">
+                                    <div class="relative px-5 py-3 shadow-sm transition-all duration-200
+                                        {{ $isMe 
+                                            ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-2xl rounded-br-md' 
+                                            : 'bg-white border border-slate-100 text-slate-700 rounded-2xl rounded-bl-md shadow-md' }}">
+                                        
+                                        <p class="text-sm leading-relaxed {{ $isMe ? 'text-white' : 'text-slate-700' }}">
+                                            {{ $message->content }}
+                                        </p>
+                                    </div>
+                                    <div class="mt-1.5 px-2 {{ $isMe ? 'text-right' : 'text-left' }} text-[10px] font-medium text-slate-400">
+                                        {{ $message->created_at->translatedFormat('H:i') }}
+                                        @if($isMe)
+                                            <span class="ml-1">
+                                                <svg class="w-3 h-3 inline text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- INPUT PREMIUM --}}
+                    <div class="p-5 bg-white/90 backdrop-blur-sm border-t border-slate-100">
+                        <form action="{{ route('patient.messages.store') }}" method="POST"
+                            class="relative max-w-4xl mx-auto">
+                            @csrf
+                            <input type="hidden" name="receiver_id" value="{{ $receiver->id }}">
+
+                            <div class="relative flex items-center bg-slate-50 rounded-2xl border border-slate-200 focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                                <textarea name="content" required rows="1"
+                                    placeholder="Écrivez votre message au Dr. {{ explode(' ', $receiver->name)[0] }}..."
+                                    class="flex-1 bg-transparent border-none text-sm font-medium focus:ring-0 placeholder:text-slate-400 px-5 py-3.5 resize-none focus:outline-none"
+                                    style="min-height: 48px; max-height: 120px;"
+                                    oninput="this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px'"></textarea>
+
+                                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-600 to-blue-500 text-white h-9 w-9 flex items-center justify-center rounded-xl shadow-md shadow-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95">
+                                    <svg class="w-5 h-5 transform rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="text-[9px] text-slate-400 mt-2 text-center">
+                                <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                                Messages confidentiels et sécurisés
+                            </p>
+                        </form>
+                    </div>
+
+                @else
+                    {{-- EMPTY STATE PREMIUM --}}
+                    <div class="flex-1 flex flex-col items-center justify-center text-center p-8">
+                        <div class="relative">
+                            <div class="w-28 h-28 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                                <svg class="w-12 h-12 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                            </div>
+                          
+                        </div>
+                        <h2 class="text-slate-800 font-black text-xl uppercase tracking-tight">Votre messagerie médicale</h2>
+                        <p class="text-slate-400 text-sm max-w-sm mt-2 font-medium">Sélectionnez un médecin dans la liste pour démarrer une conversation sécurisée.</p>
+                        
+                        <div class="mt-8 flex items-center gap-4 text-xs text-slate-300">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full"></span> Confidentiel</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-blue-400 rounded-full"></span> Chiffré</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-amber-400 rounded-full"></span> Sécurisé</span>
+                        </div>
+                    </div>
+                @endif
+
+            </div>
         </div>
-    </main>
+    </div>
+</main>
+
+<style>
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .animate-fade-in-up {
+        animation: fade-in-up 0.3s ease-out;
+    }
+    textarea {
+        overflow-y: hidden;
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 4px;
+    }
+    .scrollbar-thumb-slate-200::-webkit-scrollbar-thumb {
+        background-color: #e2e8f0;
+        border-radius: 9999px;
+    }
+    .scrollbar-track-transparent::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+</style>
+
+
 </div>
 
 <script>
@@ -189,12 +396,30 @@
     }
 
     // Moteur de recherche simple
-    document.getElementById('contactSearch').addEventListener('input', function(e) {
-        const term = e.target.value.toLowerCase();
-        document.querySelectorAll('.contact-item').forEach(c => {
-            const name = c.dataset.name;
-            c.style.display = name.includes(term) ? 'flex' : 'none';
+    const searchInput = document.getElementById('contactSearch');
+    if(searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.contact-item').forEach(c => {
+                const name = c.dataset.name;
+                c.style.display = name && name.includes(term) ? 'flex' : 'none';
+            });
         });
-    });
+    }
 </script>
+
+<style>
+    [x-cloak] { display: none !important; }
+    body { 
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 4px;
+    }
+    .scrollbar-thumb-blue-100::-webkit-scrollbar-thumb {
+        background-color: #dbeafe;
+        border-radius: 9999px;
+    }
+</style>
 </x-app-layout>

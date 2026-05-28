@@ -2,185 +2,343 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <title>Ordonnance Médicale - {{ $prescription->reference }}</title>
     <style>
-        /* Configuration de la page pour le PDF */
-        @page { margin: 0; }
-        body { 
-            font-family: 'Helvetica', 'Arial', sans-serif; 
-            color: #1e293b; 
-            margin: 0;
-            padding: 0;
-            line-height: 1.5;
+        @page {
+            margin: 1.5cm;
+            size: A4;
         }
-
-        /* Barre latérale décorative Premium */
-        .sidebar {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 8px;
-            background: #2563eb;
+        
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #1a202c;
+            line-height: 1.4;
+            font-size: 12px;
+            background: white;
         }
-
-        .container { padding: 50px 60px; }
-
-        /* En-tête */
-        .header { 
-            border-bottom: 1px solid #e2e8f0; 
-            padding-bottom: 30px;
-            margin-bottom: 40px;
-        }
-        .doctor-info h1 { 
-            margin: 0; 
-            font-size: 24px; 
-            color: #0f172a; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .specialty { 
-            color: #2563eb; 
-            font-weight: bold; 
-            font-size: 14px; 
-            margin-top: 4px;
-            text-transform: uppercase;
+        
+        .main-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
             letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
-        .clinic-name { font-size: 12px; color: #64748b; margin-top: 5px; }
-
-        /* Détails Ordonnance */
-        .meta-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 50px;
-            font-size: 13px;
-        }
-        .patient-box {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #f1f5f9;
-        }
-
-        /* Corps de l'ordonnance */
-        .content { min-height: 450px; }
-        .rp-symbol { 
-            font-family: serif; 
-            font-style: italic; 
-            font-size: 45px; 
-            color: #cbd5e1; 
+        
+        .sub-title {
+            text-align: center;
+            font-size: 10px;
+            color: #2563eb;
+            font-weight: bold;
             margin-bottom: 20px;
         }
         
-        .prescription-list { margin-left: 20px; }
-        .item { 
-            margin-bottom: 25px; 
-            position: relative;
+        .ref-number {
+            text-align: right;
+            font-size: 11px;
+            font-family: monospace;
+            margin-bottom: 20px;
         }
-        .med-name { 
-            font-size: 17px; 
-            font-weight: 800; 
-            color: #1e3a8a; 
-            display: block;
+        
+        .doctor-info {
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
-        .posology { 
-            font-size: 14px; 
-            color: #475569; 
-            display: block;
+        
+        .doctor-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+        
+        .doctor-specialty {
+            font-size: 12px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        
+        .doctor-details {
+            font-size: 10px;
+            color: #475569;
+        }
+        
+        .date-lieu {
+            text-align: right;
+            margin-bottom: 25px;
+            font-size: 11px;
+            font-style: italic;
+        }
+        
+        .patient-title {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .patient-info {
+            font-size: 11px;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .rp-symbol {
+            font-size: 32px;
+            font-style: italic;
+            font-family: 'Times New Roman', serif;
+            margin: 25px 0 15px 0;
+        }
+        
+        .medication-item {
+            margin-bottom: 20px;
+            padding-left: 15px;
+        }
+        
+        .med-name {
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .med-details {
+            font-size: 11px;
+            color: #475569;
             margin-top: 3px;
         }
-        .duration {
-            font-size: 12px;
-            color: #94a3b8;
-            font-weight: bold;
-        }
-
-        /* Pied de page */
-        .footer { 
-            margin-top: 60px;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 20px;
-        }
-        .signature-box { 
-            float: right; 
-            text-align: center; 
-            width: 250px;
-        }
-        .signature-label {
+        
+        .warning-note {
             font-size: 10px;
-            text-transform: uppercase;
-            color: #94a3b8;
-            margin-bottom: 50px;
-            display: block;
-            font-weight: bold;
+            color: #dc2626;
+            margin-top: 3px;
+            font-style: italic;
         }
-        .signature-line { border-bottom: 1px dashed #cbd5e1; width: 100%; }
-        .footer-note { font-size: 10px; color: #94a3b8; margin-top: 40px; }
+        
+        .verification-title {
+            font-weight: bold;
+            font-size: 11px;
+            margin: 30px 0 10px 0;
+            text-align: center;
+        }
+        
+        .sha256-code {
+            font-family: monospace;
+            font-size: 9px;
+            word-break: break-all;
+            text-align: center;
+            background: #f8fafc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .signature-box {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .doctor-signature {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .valid-badge {
+            color: #10b981;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        
+        .signature-date {
+            font-size: 9px;
+            color: #94a3b8;
+        }
+        
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .qr-label {
+            font-size: 8px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 8px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+        
+        .clearfix {
+            clear: both;
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar"></div>
 
-    <div class="container">
-        <div class="header">
-            <table width="100%">
-                <tr>
-                    <td class="doctor-info">
-                        <h1>Dr. {{ $prescription->medecin->name }}</h1>
-                        <div class="specialty">{{ $prescription->medecin->specialite->nom ?? 'Médecine Générale' }}</div>
-                        <div class="clinic-name">Santé + Medical Center | Bénin</div>
-                    </td>
-                    <td align="right" style="vertical-align: top;">
-                        <div style="font-size: 12px; color: #64748b;">
-                            Réf: #ORD-{{ str_pad($prescription->id, 5, '0', STR_PAD_LEFT) }}<br>
-                            Fait le : <strong>{{ $prescription->created_at->format('d/m/Y') }}</strong>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+    {{-- TITRE --}}
+    <div class="main-title">ORDONNANCE MÉDICALE</div>
+    <div class="sub-title">Document sécurisé — Signature numérique certifiée</div>
+
+    {{-- NUMÉRO DE RÉFÉRENCE --}}
+    <div class="ref-number">N° {{ $prescription->reference }}</div>
+
+    {{-- INFORMATIONS MÉDECIN (100% dynamique) --}}
+    <div class="doctor-info">
+        <div class="doctor-name">Dr. {{ $prescription->medecin->name }}</div>
+        <div class="doctor-specialty">
+            {{ $prescription->medecin->specialite->nom_specialite ?? '' }}
         </div>
-
-        <div class="meta-info">
-            <div class="patient-box">
-                <span style="color: #94a3b8; font-size: 10px; text-transform: uppercase; font-weight: bold;">Patient</span><br>
-                <strong style="font-size: 16px;">{{ Auth::user()->name }}</strong>
-            </div>
+        
+                @if($prescription->medecin->numero_ordre)
+                <div class="doctor-details">
+        N° Inscription à l'Ordre des Médecins : {{ $prescription->medecin->numero_ordre }}       
         </div>
+                @endif
+        
+        @if($prescription->medecin->cabinet_nom)
+        <div class="doctor-details">
+            Cabinet : {{ $prescription->medecin->cabinet_nom }}
+        </div>
+        @endif
+        
+        @if($prescription->medecin->cabinet_adresse)
+        <div class="doctor-details">
+            {{ $prescription->medecin->cabinet_adresse }}
+        </div>
+        @endif
+        
+        @if($prescription->medecin->cabinet_ville)
+        <div class="doctor-details">
+            {{ $prescription->medecin->cabinet_ville }}
+        </div>
+        @endif
+        
+<div class="doctor-details">
+    @if($prescription->medecin->cabinet_telephone)
+        Tél : {{ $prescription->medecin->cabinet_telephone }}
+    @endif
+    @if($prescription->medecin->cabinet_telephone && $medecinEmail)
+        | 
+    @endif
+    @if($medecinEmail)
+        Email : {{ $medecinEmail }}
+    @endif
+</div>
+    </div>
 
-        <div class="content">
-            <div class="rp-symbol">Rp/</div>
-            
-            <div class="prescription-list">
-                {{-- On gère ici le cas où le contenu est une chaîne simple ou un tableau JSON --}}
-                @if(is_array($prescription->contenu_prescription))
-                    @foreach($prescription->contenu_prescription as $medicament)
-                        <div class="item">
-                            <span class="med-name">{{ $medicament['nom'] }}</span>
-                            <span class="posology">{{ $medicament['posologie'] }}</span>
-                            <span class="duration">— Pendant {{ $medicament['duree'] }}</span>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="item" style="font-size: 16px; white-space: pre-line;">
-                        {!! nl2br(e($prescription->contenu)) !!}
+    {{-- DATE ET LIEU (ville dynamique) --}}
+    <div class="date-lieu">
+        Fait à <strong>{{ $prescription->medecin->cabinet_ville ?? '' }}</strong>, le <strong>{{ $prescription->date_emission->translatedFormat('d F Y') }}</strong>
+    </div>
+
+    {{-- INFORMATIONS PATIENT (dynamique) --}}
+    <div class="patient-title">PATIENT :</div>
+    <div class="patient-info">
+        {{ strtoupper($prescription->patient->name) }}
+        @if($prescription->patient->date_naissance)
+            | Né(e) le : {{ \Carbon\Carbon::parse($prescription->patient->date_naissance)->format('d/m/Y') }}
+        @endif
+        @if($prescription->patient->numero_securite_sociale)
+            | N° SS : {{ $prescription->patient->numero_securite_sociale }}
+        @endif
+    </div>
+    <div class="patient-info">
+        @if($prescription->patient->adresse)
+            Adresse : {{ $prescription->patient->adresse }} |
+        @endif
+        Poids : {{ $prescription->poids ?? '--' }} kg
+    </div>
+    @if($prescription->patient->allergies)
+    <div class="patient-info" style="color: #dc2626;">
+        ⚠️ Allergies connues : {{ $prescription->patient->allergies }}
+    </div>
+    @endif
+
+    {{-- PRESCRIPTION --}}
+    <div class="rp-symbol">Rp/</div>
+    
+    <div>
+        @if(!empty($prescription->contenu))
+            @php
+                $lines = explode("\n", $prescription->contenu);
+            @endphp
+            @foreach($lines as $index => $line)
+                @if(trim($line))
+                    <div class="medication-item">
+                        <div class="med-name">{{ trim($line) }}</div>
                     </div>
                 @endif
-            </div>
-        </div>
-
-        <div class="footer">
-            <div class="signature-box">
-                <span class="signature-label">Cachet et Signature du Médecin</span>
-                <div class="signature-line"></div>
-                <p style="font-size: 12px; margin-top: 10px;">Dr. {{ $prescription->medecin->name }}</p>
-            </div>
-            
-            <div style="clear: both;"></div>
-            
-            <div class="footer-note">
-                Cette ordonnance est valable 3 mois. Document officiel généré par le système Santé +.
-            </div>
-        </div>
+            @endforeach
+        @else
+            <div style="color: #94a3b8; font-style: italic;">Aucun médicament prescrit</div>
+        @endif
     </div>
+
+    {{-- CODE DE VÉRIFICATION --}}
+    <div class="verification-title">CODE DE VÉRIFICATION</div>
+    <div class="sha256-code">
+        {{ $sha256 ?? hash('sha256', $prescription->reference . $prescription->created_at . ($prescription->verification_token ?? '')) }}
+    </div>
+
+    {{-- SIGNATURE ET CACHET --}}
+    <div class="signature-box">
+        <div class="doctor-signature">Dr. {{ $prescription->medecin->name }}</div>
+        
+        @if($prescription->medecin->specialite->nom_specialite)
+        <div class="doctor-details" style="margin-bottom: 5px;">
+            {{ $prescription->medecin->specialite->nom_specialite }}
+        </div>
+        @endif
+        
+        @if($prescription->medecin->numero_ordre)
+        <div class="doctor-details">
+            N° Inscription à l'Ordre des Médecins : {{ $prescription->medecin->numero_ordre }}
+        </div>
+        @endif
+        
+        @if($prescription->medecin->cabinet_nom || $prescription->medecin->cabinet_ville)
+        <div class="doctor-details">
+            Établissement : 
+            @if($prescription->medecin->cabinet_nom){{ $prescription->medecin->cabinet_nom }}@endif
+            @if($prescription->medecin->cabinet_nom && $prescription->medecin->cabinet_ville), @endif
+            @if($prescription->medecin->cabinet_ville){{ $prescription->medecin->cabinet_ville }}@endif
+        </div>
+        @endif
+        
+        @if($prescription->medecin->cabinet_telephone)
+        <div class="doctor-details">
+            Tél : {{ $prescription->medecin->cabinet_telephone }}
+        </div>
+        @endif
+        
+        <div class="signature-date">
+            Signé le : {{ $prescription->created_at->format('d/m/Y à H:i:s') }}
+        </div>
+        <div class="valid-badge"> SIGNATURE NUMÉRIQUE VALIDE</div>
+    </div>
+
+  {{-- QR Code --}}
+@if(isset($qrCodeSvg))
+<div class="qr-container">
+    {!! $qrCodeSvg !!}
+    <div class="qr-label">Scanner pour vérifier l'authenticité</div>
+</div>
+@endif
+
+    {{-- SHA-256 (bas de page) --}}
+    <div class="sha256-code" style="font-size: 7px; margin-top: 20px;">
+        Empreinte SHA-256 : {{ $sha256 ?? hash('sha256', $prescription->reference . $prescription->created_at . ($prescription->verification_token ?? '')) }}
+    </div>
+
+    {{-- FOOTER --}}
+    <div class="footer">
+        Document valable 3 mois. Ordonnance générée par MonEspaceSanté — Système sécurisé.<br>
+        Toute falsification est punie par la loi.
+    </div>
+
 </body>
 </html>

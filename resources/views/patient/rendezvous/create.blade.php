@@ -1,8 +1,116 @@
 <x-app-layout>
-    <div class="py-12 bg-[#F8FAFC] min-h-screen montserrat">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex min-h-screen bg-gradient-to-br from-blue-50 to-white" x-data="{ mobileMenuOpen: false }">
+
+    {{-- OVERLAY MOBILE --}}
+    <div x-show="mobileMenuOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="mobileMenuOpen = false" 
+         class="fixed inset-0 bg-blue-900/40 backdrop-blur-sm z-[40] lg:hidden" x-cloak>
+    </div>
+
+    {{-- NAVBAR HORIZONTALE --}}
+    <nav class="fixed top-0 left-0 right-0 bg-white shadow-md border-b border-blue-100 z-50">
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                {{-- LOGO / TITRE --}}
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo MonEspaceSanté" class="w-full h-full object-contain">
+                    </div>
+                </div>
+
+                {{-- LIENS NAVIGATION DESKTOP --}}
+                <div class="hidden lg:flex items-center gap-1">
+                    <a href="{{ route('patient.dashboard') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.dashboard') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                          Tableau de bord
+                    </a>
+                    <a href="{{ route('patient.rendezvous.index') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.rendezvous*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Rendez-vous
+                    </a>
+                 
+                    <a href="{{ route('patient.lab_results.index') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.lab_results*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Analyses
+                    </a>
+                    
+                    <a href="{{ route('patient.medical_record.index') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.medical_record*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Dossier Médical
+                    </a>
+                    <a href="{{ route('patient.messages.index') }}" 
+                       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('patient.messages*') ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-blue-50' }}">
+                       Messagerie
+                    </a>
+                </div>
+
+                {{-- ACTIONS & DÉCONNEXION --}}
+                <div class="flex items-center gap-4">
+                    @auth
+                        <form method="POST" action="{{ route('logout') }}" class="m-0">
+                            @csrf
+                            <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all duration-300 shadow-md cursor-pointer">
+                                <span>Quitter</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                            </button>
+                        </form>
+                    @endauth
+
+                    {{-- BOUTON HAMBURGER UNIQUE --}}
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 text-slate-700 hover:bg-blue-50 rounded-xl transition-all">
+                        <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg x-show="mobileMenuOpen" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- MENU MOBILE (Dropdown) avec liens actifs --}}
+        <div x-show="mobileMenuOpen" x-cloak @click.away="mobileMenuOpen = false" class="lg:hidden bg-white border-t border-blue-100 px-4 py-4 space-y-2 shadow-xl">
+            <a href="{{ route('patient.dashboard') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.dashboard') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                Tableau de bord
+            </a>
+            <a href="{{ route('patient.rendezvous.index') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.rendezvous*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+                Rendez-vous
+            </a>
+        
+            <a href="{{ route('patient.lab_results.index') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.lab_results*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+               Analyses
+            </a>
+           
+            <a href="{{ route('patient.medical_record.index') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.medical_record*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+               Dossier Médical
+            </a>
+            <a href="{{ route('patient.messages.index') }}" 
+               class="block px-4 py-3 rounded-xl font-semibold transition-all {{ request()->routeIs('patient.messages*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600' }}">
+               Messagerie
+            </a>
+        </div>
+    </nav>
+
+    {{-- MAIN CONTENT --}}
+    <main class="flex-1 p-4 md:p-8 min-h-screen pt-24 lg:pt-20">
+        <div class="max-w-3xl mx-auto">
             
-            <div class="mb-8">
+            {{-- Navigation / Retour --}}
+            <div class="mb-6">
                 <a href="{{ route('patient.rendezvous.index') }}" class="inline-flex items-center text-slate-500 hover:text-blue-600 transition font-bold text-sm group">
                     <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -11,94 +119,115 @@
                 </a>
             </div>
 
-         <div class="bg-white rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-slate-100 overflow-hidden">
-    <div class="bg-gradient-to-br from-slate-900 to-blue-900 p-10 text-white relative overflow-hidden">
-        <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div class="relative z-10">
-            <h1 class="text-3xl font-black tracking-tight italic">Prendre <span class="text-blue-400 uppercase">Rendez-vous</span></h1>
-            <p class="text-slate-300 mt-2 font-medium opacity-80">Planifiez votre consultation en quelques clics.</p>
-        </div>
-    </div>
-
-    <form action="{{ route('patient.rendezvous.store') }}" method="POST" id="rdvForm" class="p-10 space-y-10">
-        @csrf
-
-        @if(session('error') || $errors->any())
-            <div class="bg-rose-50 border-l-4 border-rose-500 p-5 rounded-2xl text-rose-700 text-xs font-bold space-y-1">
-                @if(session('error')) <p>{{ session('error') }}</p> @endif
-                @foreach ($errors->all() as $error) <p>{{ $error }}</p> @endforeach
-            </div>
-        @endif
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-4">
-                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">1</span>
-                    Spécialité
-                </label>
-                <select id="specialite_filter" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition shadow-sm cursor-pointer outline-none">
-                    <option value="">Toutes les spécialités</option>
-                    @foreach($specialites as $spe)
-                        <option value="{{ $spe->id }}">{{ $spe->nom_specialite }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="space-y-4">
-                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">2</span>
-                    Praticien
-                </label>
-                <select name="medecin_id" id="medecin_id" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition shadow-sm cursor-pointer outline-none">
-                    <option value="" disabled selected>Choisir un médecin...</option>
-                    @foreach($medecins as $medecin)
-                        <option value="{{ $medecin->id }}" 
-                                data-specialite="{{ $medecin->specialite_id }}"
-                                data-is-specialist="{{ $medecin->specialite_id != 1 ? 'true' : 'false' }}"
-                                data-user="{{ $medecin->user_id }}">
-                            Dr. {{ $medecin->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-4">
-                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">3</span>
-                    Dates disponibles
-                </label>
-                <div id="dates_container" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2">
-                    </div>
-                <input type="hidden" name="date_rdv" id="date_rdv_hidden" required>
-            </div>
-
-            <div class="space-y-4">
-                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    <span class="w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[8px]">4</span>
-                    Créneaux disponibles
-                </label>
-                <div id="heures_container" class="grid grid-cols-3 gap-2">
-                    </div>
-                <input type="hidden" name="heure_rdv" id="heure_rdv_hidden" required>
+            {{-- Formulaire --}}
+            <div class="bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
                 
-                <div id="msg_select" class="text-[11px] text-slate-400 font-bold italic bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-center transition-all">
-                    Sélectionnez un médecin pour voir ses disponibilités.
+                {{-- Header --}}
+                <div class="bg-blue-700 p-8 text-white">
+                    <h1 class="text-2xl md:text-3xl font-black tracking-tight">
+                        Prendre <span class="text-blue-200">Rendez-vous</span>
+                    </h1>
+                    <p class="text-blue-100 mt-2 font-medium">Planifiez votre consultation en quelques clics.</p>
                 </div>
+
+                {{-- Formulaire --}}
+                <form action="{{ route('patient.rendezvous.store') }}" method="POST" id="rdvForm" class="p-6 md:p-8 space-y-8">
+                    @csrf
+
+                    @if(session('error') || $errors->any())
+                        <div class="bg-rose-50 border-l-4 border-rose-500 p-5 rounded-xl text-rose-700 text-xs font-bold space-y-1">
+                            @if(session('error')) <p>{{ session('error') }}</p> @endif
+                            @foreach ($errors->all() as $error) <p>{{ $error }}</p> @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Spécialité & Médecin --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        {{-- Spécialité --}}
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                                <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px]">1</span>
+                                Spécialité
+                            </label>
+                            <select id="specialite_filter" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none">
+                                <option value="">Toutes les spécialités</option>
+                                @foreach($specialites as $spe)
+                                    <option value="{{ $spe->id }}">{{ $spe->nom_specialite }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Médecin --}}
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                                <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px]">2</span>
+                                Praticien
+                            </label>
+                            <select name="medecin_id" id="medecin_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none">
+                                <option value="" disabled selected>Choisir un médecin...</option>
+                                @foreach($medecins as $medecin)
+                                    <option value="{{ $medecin->id }}" 
+                                            data-specialite="{{ $medecin->specialite_id }}"
+                                            data-is-specialist="{{ $medecin->specialite_id != 1 ? 'true' : 'false' }}"
+                                            data-user="{{ $medecin->user_id }}">
+                                        Dr. {{ $medecin->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Dates & Créneaux --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        {{-- Dates disponibles --}}
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                                <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px]">3</span>
+                                Dates disponibles
+                            </label>
+                            <div id="dates_container" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2">
+                                <!-- Dates will appear here -->
+                            </div>
+                            <input type="hidden" name="date_rdv" id="date_rdv_hidden" required>
+                        </div>
+
+                        {{-- Créneaux disponibles --}}
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                                <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px]">4</span>
+                                Créneaux disponibles
+                            </label>
+                            <div id="heures_container" class="grid grid-cols-3 gap-2">
+                                <!-- Hours will appear here -->
+                            </div>
+                            <input type="hidden" name="heure_rdv" id="heure_rdv_hidden" required>
+                            
+                            <div id="msg_select" class="text-[11px] text-slate-400 font-medium bg-slate-50 p-5 rounded-xl border border-dashed border-slate-200 text-center">
+                                Sélectionnez un médecin pour voir ses disponibilités.
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Motif --}}
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black uppercase tracking-wider text-slate-500 ml-1">Motif (Optionnel)</label>
+                        <textarea name="motif" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none placeholder:text-slate-300" placeholder="Ex: Consultation de suivi..."></textarea>
+                    </div>
+
+                    {{-- Bouton submit --}}
+                    <button type="submit" id="submitBtn" disabled class="w-full py-4 bg-slate-200 text-white rounded-xl font-black uppercase tracking-wider text-sm shadow-md transition-all duration-300 flex items-center justify-center gap-3 cursor-not-allowed">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Confirmer le rendez-vous
+                    </button>
+                </form>
             </div>
         </div>
+    </main>
 
-        <div class="space-y-4">
-            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Motif (Optionnel)</label>
-            <textarea name="motif" rows="2" class="w-full bg-slate-50 border-none rounded-[1.5rem] px-6 py-4 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 transition outline-none placeholder-slate-300" placeholder="Ex: Consultation de suivi..."></textarea>
-        </div>
-
-        <button type="submit" id="submitBtn" disabled class="w-full py-6 bg-slate-200 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-xs shadow-lg transition-all duration-500 flex items-center justify-center gap-3 cursor-not-allowed">
-            <i class="fa-solid fa-calendar-check"></i>
-            Confirmer le rendez-vous
-        </button>
-    </form>
 </div>
 
 <script>
@@ -112,6 +241,12 @@
     const submitBtn = document.getElementById('submitBtn');
 
     const disponibilites = @json($disponibilites);
+
+    // Format date FR
+    function formatDateFr(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    }
 
     // 1. Filtre Spécialité -> Médecins
     specialiteSelect.addEventListener('change', function() {
@@ -140,14 +275,12 @@
             Object.keys(disponibilites[userId]).forEach(dateStr => {
                 const btnDate = document.createElement('button');
                 btnDate.type = "button";
-                
-                const d = new Date(dateStr);
-                btnDate.innerText = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-                btnDate.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 shadow-sm transition-all hover:border-blue-400";
+                btnDate.innerText = formatDateFr(dateStr);
+                btnDate.className = "py-3 bg-white border border-slate-200 rounded-xl text-[11px] font-semibold text-slate-600 shadow-sm transition-all hover:border-blue-400 hover:bg-blue-50";
                 
                 btnDate.onclick = function() {
-                    datesContainer.querySelectorAll('button').forEach(b => b.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 shadow-sm transition-all");
-                    this.className = "py-3 bg-slate-900 text-white rounded-xl text-[11px] font-black shadow-lg scale-105 transition-all";
+                    datesContainer.querySelectorAll('button').forEach(b => b.className = "py-3 bg-white border border-slate-200 rounded-xl text-[11px] font-semibold text-slate-600 shadow-sm transition-all");
+                    this.className = "py-3 bg-blue-600 text-white rounded-xl text-[11px] font-bold shadow-md transition-all";
                     
                     dateHidden.value = dateStr;
                     showHeures(userId, dateStr);
@@ -155,8 +288,9 @@
                 datesContainer.appendChild(btnDate);
             });
         } else {
+            msgSelect.classList.remove('hidden');
             msgSelect.innerText = "Aucune date disponible pour ce praticien.";
-            msgSelect.className = "text-[11px] font-bold italic p-4 rounded-2xl border border-rose-100 bg-rose-50 text-rose-500 text-center";
+            msgSelect.className = "text-[11px] font-medium p-5 rounded-xl border border-rose-200 bg-rose-50 text-rose-500 text-center";
         }
     });
 
@@ -170,11 +304,11 @@
             const btn = document.createElement('button');
             btn.type = "button";
             btn.innerText = heure.substring(0, 5);
-            btn.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 hover:border-blue-500 transition-all";
+            btn.className = "py-3 bg-white border border-slate-200 rounded-xl text-[11px] font-semibold text-slate-600 transition-all hover:border-blue-400 hover:bg-blue-50";
             
             btn.onclick = function() {
-                heuresContainer.querySelectorAll('button').forEach(b => b.className = "py-3 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 transition-all");
-                this.className = "py-3 bg-blue-600 text-white rounded-xl text-[11px] font-black shadow-lg scale-105 transition-all";
+                heuresContainer.querySelectorAll('button').forEach(b => b.className = "py-3 bg-white border border-slate-200 rounded-xl text-[11px] font-semibold text-slate-600 transition-all");
+                this.className = "py-3 bg-blue-600 text-white rounded-xl text-[11px] font-bold shadow-md transition-all";
                 
                 heureHidden.value = heure;
                 enableSubmit();
@@ -190,20 +324,46 @@
         heureHidden.value = "";
         disableSubmit();
         msgSelect.classList.remove('hidden');
-        msgSelect.className = "text-[11px] text-slate-400 font-bold italic bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-center";
+        msgSelect.className = "text-[11px] text-slate-400 font-medium bg-slate-50 p-5 rounded-xl border border-dashed border-slate-200 text-center";
         msgSelect.innerText = "Sélectionnez un médecin pour voir ses disponibilités.";
     }
 
     function enableSubmit() {
         submitBtn.disabled = false;
-        submitBtn.classList.replace('bg-slate-200', 'bg-slate-900');
-        submitBtn.classList.replace('cursor-not-allowed', 'cursor-pointer');
+        submitBtn.classList.remove('bg-slate-200', 'cursor-not-allowed');
+        submitBtn.classList.add('bg-blue-600', 'cursor-pointer', 'hover:bg-blue-700');
     }
 
     function disableSubmit() {
         submitBtn.disabled = true;
-        submitBtn.classList.replace('bg-slate-900', 'bg-slate-200');
-        submitBtn.classList.replace('cursor-pointer', 'cursor-not-allowed');
+        submitBtn.classList.remove('bg-blue-600', 'cursor-pointer', 'hover:bg-blue-700');
+        submitBtn.classList.add('bg-slate-200', 'cursor-not-allowed');
     }
 </script>
+
+<style>
+    [x-cloak] { display: none !important; }
+    body { 
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+    }
+    select, textarea {
+        appearance: none;
+        -webkit-appearance: none;
+    }
+    #dates_container::-webkit-scrollbar,
+    #heures_container::-webkit-scrollbar {
+        width: 4px;
+    }
+    #dates_container::-webkit-scrollbar-track,
+    #heures_container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+    #dates_container::-webkit-scrollbar-thumb,
+    #heures_container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+</style>
 </x-app-layout>

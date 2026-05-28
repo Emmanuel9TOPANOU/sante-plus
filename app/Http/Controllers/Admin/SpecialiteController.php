@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Specialite;
+use App\Models\User;  // ← AJOUTER CETTE LIGNE
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -13,25 +14,23 @@ class SpecialiteController extends Controller
     /**
      * Affiche la liste des spécialités avec filtrage et pagination.
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $query = Specialite::query();
 
-        // Système de recherche dynamique sur le nom ou la description
         if ($request->filled('search')) {
-            $searchTerm = $request->search;
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('nom_specialite', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('description', 'LIKE', "%{$searchTerm}%");
-            });
+            $query->where('nom_specialite', 'LIKE', '%' . $request->search . '%')
+                  ->orWhere('description', 'LIKE', '%' . $request->search . '%');
         }
 
-        // Pagination fluide à 10 éléments, conservation des paramètres de recherche
-        $specialites = $query->orderBy('nom_specialite', 'asc')
-                             ->paginate(10)
-                             ->withQueryString();
+        $specialites = $query->paginate(10)->withQueryString();
         
-        return view('admin.specialites.index', compact('specialites'));
+        // Ajouter les statistiques pour la navbar
+        $stats = [
+            'new_users_month' => User::where('created_at', '>=', now()->startOfMonth())->count()
+        ];
+
+        return view('admin.specialites.index', compact('specialites', 'stats'));
     }
 
     /**
