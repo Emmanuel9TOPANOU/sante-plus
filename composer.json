@@ -1,7 +1,7 @@
 {
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The ske leton application for the Laravel framework.",
+    "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
@@ -9,7 +9,6 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
-        "simplesoftwareio/simple-qrcode": "^4.2",
         "twilio/sdk": "^8.11"
     },
     "require-dev": {
@@ -68,7 +67,7 @@
             "php-http/discovery": true
         },
         "platform": {
-            "php": "8.4.0"
+            "php": "8.2.0"
         },
         "platform-check": false
     },
